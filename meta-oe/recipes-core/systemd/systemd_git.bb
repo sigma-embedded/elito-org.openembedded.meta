@@ -17,6 +17,7 @@ PV = "git"
 PR = "r7"
 
 inherit useradd pkgconfig autotools vala perlnative
+inherit gettext
 
 SRCREV = "f6cebb3bd5a00d79c8131637c0f6796a75e6af99"
 
