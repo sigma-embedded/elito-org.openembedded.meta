@@ -13,7 +13,7 @@ SECTION = "base/shell"
 inherit gitpkgv
 PKGV = "v${GITPKGVTAG}"
 
-PV = "git"
+PV = "gitr${SRCPV}"
 PR = "r7"
 
 inherit useradd pkgconfig autotools vala perlnative
