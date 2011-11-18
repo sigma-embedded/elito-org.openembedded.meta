@@ -57,6 +57,8 @@ def get_git_pkgv(d, use_tags):
     fetcher = bb.fetch2.Fetch(src_uri, d)
     ud = fetcher.ud
 
+    bb.utils.mkdirhier(cachedir)
+
     #
     # If SRCREV_FORMAT is set respect it for tags
     #
