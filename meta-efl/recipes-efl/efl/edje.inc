@@ -1,7 +1,7 @@
 DESCRIPTION = "Edje is the Enlightenment graphical design & layout library"
-DEPENDS = "lua5.1 eet evas ecore embryo edje-native"
-DEPENDS_virtclass-native = "lua5.1-native evas-native ecore-native eet-native embryo-native"
-DEPENDS_virtclass-nativesdk = "evas-native ecore-native eet-native embryo-native"
+DEPENDS = "lua5.1 eet evas ecore embryo edje-native eina"
+DEPENDS_virtclass-native = "lua5.1-native evas-native ecore-native eet-native embryo-native eina-native"
+DEPENDS_virtclass-nativesdk = "evas-native ecore-native eet-native embryo-native eina-native"
 # GPLv2 because of epp in PN-utils
 LICENSE = "MIT BSD GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=c18cc221a14a84b033db27794dc36df8"
@@ -57,6 +57,6 @@ FILES_${PN}-utils = "\
   ${datadir}/edje/include/edje.inc \
 "
 
-FILES_${PN} += "${libdir}/${PN}/modules/*/*/module.${SOLIBS}"
+FILES_${PN} += "${libdir}/${PN}/modules/*/*/module.so"
 FILES_${PN}-dev += "${libdir}/${PN}/modules/*/*/module.la"
 FILES_${PN}-dbg += "${libdir}/${PN}/modules/*/*/.debug"
