@@ -14,15 +14,15 @@ inherit gitpkgv
 PKGV = "v${GITPKGVTAG}"
 
 PV = "gitr${SRCPV}"
-PR = "r7"
+PR = "r10"
 
 inherit useradd pkgconfig autotools vala perlnative
 inherit gettext
 
-SRCREV = "f6cebb3bd5a00d79c8131637c0f6796a75e6af99"
+SRCREV = "a3f914b2a21decb0c4bd7a763ddd3ace215091cb"
 
 SRC_URI = "git://anongit.freedesktop.org/systemd/systemd;protocol=git \
-           file://0001-disable-xsltproc-completely.patch \
+           file://0001-docs-fix-build-without-xsltproc.patch \
            ${UCLIBCPATCHES} \
           "
 UCLIBCPATCHES = ""
@@ -39,7 +39,8 @@ SYSTEMDDISTRO_angstrom = "angstrom"
 
 # The gtk+ tools should get built as a separate recipe e.g. systemd-tools
 EXTRA_OECONF = " --with-distro=${SYSTEMDDISTRO} \
-                 --with-rootdir=${base_prefix} \
+                 --with-rootprefix=${base_prefix} \
+                 --with-rootlibdir=${base_libdir} \
                  ${@base_contains('DISTRO_FEATURES', 'pam', '--enable-pam', '--disable-pam', d)} \
                  --disable-gtk \
                "
@@ -58,10 +59,14 @@ do_install() {
 	ln -s ${base_bindir}/systemd ${D}/init
 }
 
-PACKAGES =+ "${PN}-gui ${PN}-vconsole-setup ${PN}-initramfs"
+PACKAGES =+ "${PN}-gui ${PN}-vconsole-setup ${PN}-initramfs ${PN}-analyze"
 
 USERADD_PACKAGES = "${PN}"
 GROUPADD_PARAM_${PN} = "-r lock"
+
+FILES_${PN}-analyze = "${bindir}/systemd-analyze"
+RDEPENDS_${PN}-analyze = "python-dbus"
+RRECOMMENDS_${PN}-analyze = "python-pycairo"
 
 FILES_${PN}-initramfs = "/init"
 RDEPENDS_${PN}-initramfs = "${PN}"
@@ -71,6 +76,8 @@ FILES_${PN}-gui = "${bindir}/systemadm"
 FILES_${PN}-vconsole-setup = "${base_libdir}/systemd/systemd-vconsole-setup \
                               ${base_libdir}/systemd/system/systemd-vconsole-setup.service \
                               ${base_libdir}/systemd/system/sysinit.target.wants/systemd-vconsole-setup.service"
+
+RRECOMMENDS_$PN}-vconsole-setup = "kbd kbd-consolefonts"
 
 FILES_${PN} += " ${base_bindir}/* \
                 ${datadir}/dbus-1/services \
@@ -98,8 +105,7 @@ RDEPENDS_${PN} += "dbus-systemd udev-systemd"
 # of blacklist support, so use proper modprobe from module-init-tools
 # And pull in the kernel modules mentioned in INSTALL
 # swapon -p is also not supported by busybox
-RRECOMMENDS_${PN} += "kbd kbd-consolefonts \
-                      systemd-serialgetty \
+RRECOMMENDS_${PN} += "systemd-serialgetty \
                       util-linux-agetty \
                       util-linux-swaponoff \
                       util-linux-fsck e2fsprogs-e2fsck \

@@ -7,7 +7,7 @@ SECTION = "libs"
 
 DEPENDS = "glib-2.0 pango atk jpeg libpng libxext libxcursor \
            gtk-doc-native docbook-utils-native libxrandr libgcrypt \
-           libxdamage libxrender libxcomposite cairo gdk-pixbuf"
+           libxdamage libxrender libxcomposite cairo gdk-pixbuf gtk+-native"
 
 LICENSE = "LGPLv2 & LGPLv2+ & LGPLv2.1+"
 
@@ -30,6 +30,7 @@ EXTRA_OECONF += " \
                  --enable-gtk2-dependency \
                  --disable-glibtest \
                  --enable-modules \
+                 --disable-cups \
 "
 
 # Make a symlink to our libtool
