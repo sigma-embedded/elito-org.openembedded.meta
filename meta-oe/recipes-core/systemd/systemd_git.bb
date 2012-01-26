@@ -14,12 +14,12 @@ inherit gitpkgv
 PKGV = "v${GITPKGVTAG}"
 
 PV = "gitr${SRCPV}"
-PR = "r10"
+PR = "r12"
 
 inherit useradd pkgconfig autotools vala perlnative
 inherit gettext
 
-SRCREV = "a3f914b2a21decb0c4bd7a763ddd3ace215091cb"
+SRCREV = "bbd9b8c2139a70005e4e83d198575e2a10fe1db2"
 
 SRC_URI = "git://anongit.freedesktop.org/systemd/systemd;protocol=git \
            file://0001-docs-fix-build-without-xsltproc.patch \
