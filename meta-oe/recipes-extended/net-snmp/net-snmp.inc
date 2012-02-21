@@ -2,12 +2,12 @@ DESCRIPTION = "Various tools relating to the Simple Network Management Protocol"
 HOMEPAGE = "http://www.net-snmp.org/"
 LICENSE = "BSD"
 
-DEPENDS = "openssl"
+DEPENDS = "openssl libnl"
 RDEPENDS_${PN}-server += "net-snmp-mibs"
 RDEPENDS_${PN}-client += "net-snmp-mibs"
 RDEPENDS_${PN}-dev = "net-snmp-client (= ${EXTENDPV}) net-snmp-server (= ${EXTENDPV})"
 RRECOMMENDS_${PN}-dbg = "net-snmp-client (= ${EXTENDPV}) net-snmp-server (= ${EXTENDPV})"
-INC_PR = "r0"
+INC_PR = "r2"
 
 inherit autotools update-rc.d siteinfo
 
@@ -36,11 +36,10 @@ do_install_append() {
 		-i ${STAGING_BINDIR}/net-snmp-config
 }
 
-PACKAGES = "net-snmp-dbg net-snmp-doc net-snmp-dev net-snmp-static net-snmp-libs \
+PACKAGES = "net-snmp-dbg net-snmp-doc net-snmp-dev net-snmp-staticdev net-snmp-static net-snmp-libs \
             net-snmp-mibs net-snmp-server net-snmp-client"
 
-FILES_${PN}-static = "${libdir}/*.a"
-FILES_${PN}-libs = "${libdir}/*"
+FILES_${PN}-libs = "${libdir}/lib*${SOLIBS}"
 FILES_${PN}-mibs = "${datadir}/snmp/mibs"
 FILES_${PN}-server = "${sbindir}/* ${sysconfdir}"
 FILES_${PN}-client = "${bindir}/* ${datadir}/snmp/"
