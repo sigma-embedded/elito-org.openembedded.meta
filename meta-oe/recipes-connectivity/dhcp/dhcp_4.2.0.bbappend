@@ -3,19 +3,11 @@ FILESEXTRAPATHS := "${THISDIR}/files"
 
 inherit systemd
 
-PRINC := "${@int(PRINC) + 1}"
+PRINC := "${@int(PRINC) + 3}"
 
-SYSTEMD_PACKAGES = "dhcp-server-systemd"
+SYSTEMD_PACKAGES = "dhcp-server-systemd dhcp-relay-systemd"
 SYSTEMD_SERVICE_dhcp-server-systemd = "dhcpd.service"
+SYSTEMD_SERVICE_dhcp-relay-systemd = "dhcrelay.service"
 
-SRC_URI += "file://dhcpd.service"
-
-do_install_append() {
-    install -d ${D}${base_libdir}/systemd/system
-    install -m 644 ${WORKDIR}/dhcpd.service ${D}${base_libdir}/systemd/system
-}
-
-PACKAGES =+ "dhcp-server-systemd"
-
-FILES_dhcp-server-systemd += "${base_libdir}/systemd"
-RDEPENDS_dhcp-server-systemd += "dhcp-server"
+SRC_URI += "file://dhcpd.service \
+            file://dhcrelay.service"
