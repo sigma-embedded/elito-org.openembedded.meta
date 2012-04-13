@@ -14,16 +14,14 @@ inherit gitpkgv
 PKGV = "v${GITPKGVTAG}"
 
 PV = "gitr${SRCPV}"
-PR = "r23"
+PR = "r25"
 
 inherit useradd pkgconfig autotools vala perlnative
 inherit gettext
 
-SRCREV = "5ebff5337594d690b322078c512eb222d34aaa82"
+SRCREV = "3eff4208ffecedd778fec260f0d4b18e94dab443"
 
 SRC_URI = "git://anongit.freedesktop.org/systemd/systemd;protocol=git \
-           file://0001-Revert-journald-allocate-PAGE_SIZE-bytes-for-selinux.patch \
-           file://0002-systemd-logind-don-t-kill-user-processes-on-exit.patch \
            ${UCLIBCPATCHES} \
           "
 UCLIBCPATCHES = ""
@@ -89,7 +87,7 @@ FILES_${PN}-vconsole-setup = "${systemd_unitdir}/systemd-vconsole-setup \
                               ${systemd_unitdir}/system/systemd-vconsole-setup.service \
                               ${systemd_unitdir}/system/sysinit.target.wants/systemd-vconsole-setup.service"
 
-RRECOMMENDS_$PN}-vconsole-setup = "kbd kbd-consolefonts"
+RRECOMMENDS_${PN}-vconsole-setup = "kbd kbd-consolefonts"
 
 FILES_${PN} = " ${base_bindir}/* \
                 ${datadir}/dbus-1/services \
