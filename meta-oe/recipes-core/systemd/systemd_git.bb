@@ -14,7 +14,7 @@ inherit gitpkgv
 PKGV = "v${GITPKGVTAG}"
 
 PV = "gitr${SRCPV}"
-PR = "r25"
+PR = "r26"
 
 inherit useradd pkgconfig autotools vala perlnative
 inherit gettext
@@ -50,6 +50,9 @@ EXTRA_OECONF = " --with-distro=${SYSTEMDDISTRO} \
 # There's no docbook-xsl-native, so for the xsltproc check to false
 do_configure_prepend() {
 	sed -i /xsltproc/d configure.ac
+
+	# we only have /home/root, not /root
+	sed -i -e 's:=/root:=/home/root:g' units/*.service*
 }
 
 do_install() {
