@@ -8,24 +8,15 @@ DEPENDS = "jpeg"
 # libv4l was absorbed into this, let OE know that
 PROVIDES = "libv4l"
 
-PR = "r1"
-
 SRC_URI = "git://linuxtv.org/v4l-utils.git;protocol=git"
-SRCREV = "v4l-utils-${PV}"
+# 54f16ca8183dd8ae8bf4ccc07949795aff0301f5 -> v0.8.8 tag
+SRCREV = "54f16ca8183dd8ae8bf4ccc07949795aff0301f5"
 
 S = "${WORKDIR}/git"
-PATH =. "${S}/_bin:"
-export PATH
 
 EXTRA_OEMAKE = "PREFIX=${prefix} DESTDIR=${D}"
 
-do_configure_prepend() {
-	mkdir _bin
-	ln -s /bin/false _bin/qmake-qt4
-}
-
 do_compile() {
-	echo $PATH
 	# fix up some ASNEEDED things
 	for i in $(find ${S} -name "Makefile") ; do
 		sed -i 's:-lrt:-lrt -lpthread:g' $i
@@ -45,3 +36,4 @@ FILES_${PN} = "${bindir} ${sbindir} ${base_libdir}/udev/rules.d/70-infrared.rule
 FILES_libv4l += "${libdir}/libv4l/* ${libdir}/*.so.*"
 FILES_libv4l-dbg += "${libdir}/libv4l/.debug"
 FILES_libv4l-dev += "${libdir}/*.so ${includedir}/lib* ${libdir}/pkgconfig/lib*"
+
