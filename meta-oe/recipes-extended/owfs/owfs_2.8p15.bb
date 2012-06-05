@@ -8,22 +8,29 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=94d55d512a9ba36caa9b7df079bae19f \
 
 DEPENDS = "fuse virtual/libusb0"
 
+PR = "r1"
+
 SRC_URI = "${SOURCEFORGE_MIRROR}/owfs/owfs-${PV}.tar.gz \
            file://owhttpd \
            file://owserver "
-SRC_URI[md5sum] = "cd213fd9bbfed95cca2c833c0f14dd72"
-SRC_URI[sha256sum] = "88b6ee5e7e4d3fe6f4faf021948236162219cf5d1ff4bf3844e62e6ae2635b23"
+SRC_URI[md5sum] = "24ec3d04ded1b199831f03e70d9e2f1f"
+SRC_URI[sha256sum] = "5bbc4ff01865e114f52ef75fd7dd3a5ee52b9ad6841504cc6155a353c516ed87"
 
 inherit autotools update-rc.d
 
 EXTRA_OECONF = " \
                  --with-fuseinclude=${STAGING_INCDIR} \
                  --with-fuselib=${STAGING_LIBDIR} \
+                 --enable-owfs \
                  --enable-owhttpd \
                  --enable-cache \
                  --enable-mt \
+                 --enable-w1 \
                  --disable-swig \
                  --disable-owtcl \
+                 --disable-owphp \
+                 --disable-owpython \
+                 --disable-owperl \
                  "
 
 do_install_prepend() {
