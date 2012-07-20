@@ -57,6 +57,8 @@ EXTRA_OECONF = " --with-distro=${SYSTEMDDISTRO} \
                  --disable-tcpwrap \
                "
 
+ROOT_HOME ?= "/home/root"
+
 # There's no docbook-xsl-native, so for the xsltproc check to false
 do_configure_prepend() {
 	sed -i /xsltproc/d configure.ac
@@ -64,7 +66,7 @@ do_configure_prepend() {
 	cp ${WORKDIR}/gtk-doc.make ${S}/docs/
 
 	# we only have /home/root, not /root
-	sed -i -e 's:=/root:=/home/root:g' units/*.service*
+	sed -i -e 's:=/root:=${ROOT_HOME}:g' units/*.service*
 }
 
 do_install() {
