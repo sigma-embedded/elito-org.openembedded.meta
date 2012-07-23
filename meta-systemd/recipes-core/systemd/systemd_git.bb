@@ -8,7 +8,7 @@ LIC_FILES_CHKSUM = "file://LICENSE.GPL2;md5=751419260aa954499f7abaabaa882bbe \
 
 PROVIDES = "udev"
 
-DEPENDS = "xz kmod docbook-sgml-dtd-4.1-native intltool-native gperf-native acl readline dbus libcap libcgroup tcp-wrappers usbutils"
+DEPENDS = "xz kmod docbook-sgml-dtd-4.1-native intltool-native gperf-native acl readline dbus libcap libcgroup tcp-wrappers usbutils glib-2.0"
 DEPENDS += "${@base_contains('DISTRO_FEATURES', 'pam', 'libpam', '', d)}"
 
 SERIAL_CONSOLE ?= "115200 /dev/ttyS0"
@@ -19,7 +19,7 @@ inherit gitpkgv
 PKGV = "v${GITPKGVTAG}"
 
 PV = "gitr${SRCPV}"
-PR = "r2"
+PR = "r4"
 
 inherit useradd pkgconfig autotools vala perlnative
 inherit gettext
@@ -30,6 +30,7 @@ SRC_URI = "git://anongit.freedesktop.org/systemd/systemd;protocol=git \
            file://gtk-doc.make \
            file://touchscreen.rules \
            file://modprobe.rules \
+           file://var-run.conf \
           "
 LDFLAGS_libc-uclibc_append = " -lrt"
 
@@ -85,6 +86,8 @@ do_install() {
 	touch ${D}${sysconfdir}/machine-id
 
 	install -m 0644 ${WORKDIR}/*.rules ${D}${sysconfdir}/udev/rules.d/
+
+	install -m 0644 ${WORKDIR}/var-run.conf ${D}${sysconfdir}/tmpfiles.d/
 }
 
 python populate_packages_prepend (){
