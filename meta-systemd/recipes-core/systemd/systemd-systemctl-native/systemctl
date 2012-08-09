@@ -25,6 +25,14 @@ while [ $# != 0 ]; do
 			cmd_args="1"
 			shift
 			;;
+		mask)
+			shift
+
+			action="$opt"
+			services="$1"
+			cmd_args="1"
+			shift
+			;;
 		--root=*)
 			ROOT=${opt##--root=}
 			cmd_args="0"
@@ -43,6 +51,16 @@ while [ $# != 0 ]; do
 done
 
 for service in $services; do
+	if [ "$action" = "mask" ]; then
+		if [ ! -d $ROOT/etc/systemd/system/ ]; then
+			mkdir -p $ROOT/etc/systemd/system/
+		fi
+		cmd="ln -s /dev/null $ROOT/etc/systemd/system/$service"
+		echo "$cmd"
+		$cmd
+		exit 0
+	fi
+
 	echo "Try to find location of $service..."
 	# find service file
 	for p in $ROOT/etc/systemd/system \
@@ -75,6 +93,23 @@ for service in $services; do
 			rm -f $ROOT/etc/systemd/system/$r.wants/$service
 			rmdir --ignore-fail-on-non-empty -p $ROOT/etc/systemd/system/$r.wants
 			echo "Disabled $service for $wanted_by."
+		fi
+	done
+
+	# create the required symbolic 'Alias' links
+	alias=$(grep Alias $ROOT/$service_file \
+		        | sed 's,Alias=,,g' \
+		        | tr ',' '\n' \
+		        | grep '\.service$')
+
+	for r in $alias; do
+		if [ "$action" = "enable" ]; then
+			mkdir -p $ROOT/etc/systemd/system
+			ln -s $service_file $ROOT/etc/systemd/system/$r
+			echo "Enabled $service for $alias."
+		else
+			rm -f $ROOT/etc/systemd/system/$r
+			echo "Disabled $service for $alias."
 		fi
 	done
 
