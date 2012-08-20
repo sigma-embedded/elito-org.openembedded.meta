@@ -21,17 +21,13 @@ KLIBC_ARCH_i586 = 'i386'
 KLIBC_ARCH_i686 = 'i386'
 KLIBC_ARCH_pentium = 'i386'
 
-SRCREV = "7cd9efd314a3d567c62f354bc2b5c0aaa3b35024"
+SRCREV = "1a6f222b01cead2ec48556203f0e200107eb4c2f"
 SRC_URI = "git://git.kernel.org/pub/scm/libs/klibc/klibc.git;protocol=git"
 
 SRC_URI_append_linux-gnueabi = " file://klibc-config-eabi.patch"
 SRC_URI_append_linux-uclibceabi = " file://klibc-config-eabi.patch"
 
-SRC_URI += "file://fstype-sane-vfat-and-jffs2-for-1.5.patch \
-            file://klibc-linux-libc-dev.patch \
-            file://modprobe.patch \
-            file://dash_readopt.patch \
-            file://wc.patch \
+SRC_URI += "file://klibc-linux-libc-dev.patch \
             file://prefix.patch \
             file://staging.patch \
             "
@@ -47,3 +43,5 @@ do_configure () {
 
         ln -sf "${STAGING_DIR_TARGET}${exec_prefix}" linux
 }
+
+THIS_LIBKLIBC = "libklibc (= ${PV}-${PR})"
