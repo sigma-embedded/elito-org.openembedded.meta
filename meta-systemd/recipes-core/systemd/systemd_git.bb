@@ -19,7 +19,7 @@ inherit gitpkgv
 PKGV = "v${GITPKGVTAG}"
 
 PV = "gitr${SRCPV}"
-PR = "r6"
+PR = "r7"
 
 inherit useradd pkgconfig autotools perlnative
 inherit gettext
