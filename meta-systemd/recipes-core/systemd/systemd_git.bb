@@ -19,13 +19,12 @@ inherit gitpkgv
 PKGV = "v${GITPKGVTAG}"
 
 PV = "gitr${SRCPV}"
-PR = "r7"
+PR = "r9"
 
 inherit useradd pkgconfig autotools perlnative
 inherit gettext
 
-SRCREV = "38a60d7112d33ffd596b23e8df53d75a7c09e71b"
-
+SRCREV = "4d92e078e9d7e9a9d346065ea5e4afbafbdadb48"
 SRC_URI = "git://anongit.freedesktop.org/systemd/systemd;protocol=git \
            file://use-rootlibdir.patch \
            file://gtk-doc.make \
@@ -41,6 +40,7 @@ UCLIBCPATCHES_libc-uclibc = "file://systemd-pam-configure-check-uclibc.patch \
                              file://systemd-pam-fix-getty-unit.patch \
                              file://systemd-pam-fix-mkostemp.patch \
                              file://systemd-pam-fix-msformat.patch \
+                             file://optional_secure_getenv.patch \
                             "
 LDFLAGS_libc-uclibc_append = " -lrt"
 
@@ -67,6 +67,8 @@ EXTRA_OECONF = " --with-distro=${SYSTEMDDISTRO} \
                  --disable-gtk-doc-html \ 
                  --disable-tcpwrap \
                  --enable-split-usr \
+                 --disable-microhttpd \
+                 --without-python \
                "
 
 ROOT_HOME ?= "/home/root"
@@ -141,12 +143,16 @@ FILES_${PN} = " ${base_bindir}/* \
                 ${sysconfdir}/systemd/ \
                 ${sysconfdir}/tmpfiles.d/ \
                 ${sysconfdir}/xdg/ \
+                ${sysconfdir}/init.d/README \
                 ${systemd_unitdir}/* \
                 ${systemd_unitdir}/system/* \
                 ${base_libdir}/udev/rules.d/99-systemd.rules \
                 ${base_libdir}/security/*.so \
                 /cgroup \
                 ${bindir}/systemd* \
+                ${bindir}/localectl \
+                ${bindir}/hostnamectl \
+                ${bindir}/timedatectl \
                 ${libdir}/tmpfiles.d/*.conf \
                 ${libdir}/systemd \
                 ${libdir}/binfmt.d \

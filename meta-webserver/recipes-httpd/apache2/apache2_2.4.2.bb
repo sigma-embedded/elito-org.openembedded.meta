@@ -3,14 +3,12 @@ extensible web server."
 SUMMARY = "Apache HTTP Server"
 HOMEPAGE = "http://httpd.apache.org/"
 DEPENDS = "libtool-native apache2-native openssl expat pcre apr apr-util"
-RDEPENDS_${PN} += "openssl libgcc"
 SECTION = "net"
 LICENSE = "Apache-2.0"
-PR = "r1"
+PR = "r3"
 
 SRC_URI = "http://www.apache.org/dist/httpd/httpd-${PV}.tar.bz2 \
            file://server-makefile.patch \
-           file://fix-libtool-name.patch \
            file://httpd-2.4.1-corelimit.patch \
            file://httpd-2.4.1-export.patch \
            file://httpd-2.4.1-selinux.patch \
@@ -37,8 +35,8 @@ CFLAGS_prepend = "-I${STAGING_INCDIR}/openssl "
 EXTRA_OECONF = "--enable-ssl \
 		--with-ssl=${STAGING_LIBDIR}/.. \
 		--with-expat=${STAGING_LIBDIR}/.. \
-		--with-apr=${STAGING_BINDIR_CROSS}/apr-1-config \
-		--with-apr-util=${STAGING_BINDIR_CROSS}/apu-1-config \
+		--with-apr=${WORKDIR}/apr-1-config \
+		--with-apr-util=${WORKDIR}/apu-1-config \
 		--enable-info \
 		--enable-rewrite \
 		--with-dbm=sdbm \
@@ -53,6 +51,15 @@ EXTRA_OECONF = "--enable-ssl \
 		ap_cv_void_ptr_lt_long=no \
 		--enable-mpms-shared \
 		ac_cv_have_threadsafe_pollset=no"
+
+do_configure_prepend() {
+	# FIXME: this hack is required to work around an issue with apr/apr-util
+	# Can be removed when fixed in OE-Core (also revert --with-* options above)
+	# see http://bugzilla.yoctoproject.org/show_bug.cgi?id=3267
+	cp ${STAGING_BINDIR_CROSS}/apr-1-config ${STAGING_BINDIR_CROSS}/apu-1-config ${WORKDIR}
+	sed -i -e 's:location=source:location=installed:' ${WORKDIR}/apr-1-config
+	sed -i -e 's:location=source:location=installed:' ${WORKDIR}/apu-1-config
+}
 
 do_install_append() {
 	install -d ${D}/${sysconfdir}/init.d
@@ -86,6 +93,7 @@ apache_sysroot_preprocess () {
 
 	sed -i 's!^APR_CONFIG = .*!APR_CONFIG = ${STAGING_BINDIR_CROSS}/apr-1-config!' ${SYSROOT_DESTDIR}${datadir}/${PN}/build/config_vars.mk
 	sed -i 's!^APU_CONFIG = .*!APU_CONFIG = ${STAGING_BINDIR_CROSS}/apu-1-config!' ${SYSROOT_DESTDIR}${datadir}/${PN}/build/config_vars.mk
+	sed -i 's!^includedir = .*!includedir = ${STAGING_INCDIR}/apache2!' ${SYSROOT_DESTDIR}${datadir}/${PN}/build/config_vars.mk
 }
 
 #
@@ -95,12 +103,12 @@ INITSCRIPT_NAME = "apache2"
 INITSCRIPT_PARAMS = "defaults 91 20"
 LEAD_SONAME = "libapr-1.so.0"
 
+PACKAGES = "${PN}-doc ${PN}-dev ${PN}-dbg ${PN}"
+
 CONFFILES_${PN} = "${sysconfdir}/${PN}/httpd.conf \
 		   ${sysconfdir}/${PN}/magic \
 		   ${sysconfdir}/${PN}/mime.types \
 		   ${sysconfdir}/init.d/${PN} "
-
-PACKAGES = "${PN}-doc ${PN}-dev ${PN}-dbg ${PN}"
 
 # we override here rather than append so that .so links are
 # included in the runtime package rather than here (-dev)
@@ -131,4 +139,6 @@ FILES_${PN} += "${datadir}/${PN}/htdocs ${datadir}/${PN}/cgi-bin"
 FILES_${PN} += "${libdir}/lib*.so ${libdir}/pkgconfig/*"
 
 FILES_${PN}-dbg += "${libdir}/${PN}/modules/.debug"
+
+RDEPENDS_${PN} += "openssl libgcc"
 

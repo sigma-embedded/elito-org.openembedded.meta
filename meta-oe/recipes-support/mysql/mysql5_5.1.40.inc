@@ -5,7 +5,7 @@ LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=477ab0a4c8ca64b482b3f2a365d0fdfa"
 
 DEPENDS = "ncurses"
-PR = "r8"
+PR = "r10"
 
 SRC_URI = "http://downloads.mysql.com/archives/mysql-5.1/mysql-${PV}.tar.gz \
            file://configure.in.patch \
@@ -26,7 +26,7 @@ inherit autotools binconfig update-rc.d
 
 INITSCRIPT_PACKAGES = "${PN}-server"
 INITSCRIPT_NAME = "mysqld"
-INITSCRIPT_PARAMS = "start 45 S . stop 45 0 6 1 ."
+INITSCRIPT_PARAMS = "start 45 5 . stop 45 0 6 1 ."
 
 export ac_cv_path_PS="/bin/ps"
 export ac_cv_FIND_PROC="/bin/ps p \$\$PID | grep -v grep | grep mysqld > /dev/null"
@@ -41,9 +41,13 @@ do_configure_append() {
 SYSROOT_PREPROCESS_FUNCS += "mysql5_sysroot_preprocess"
 
 # We need to append this so it runs *after* binconfig's preprocess function
+#
+# We really don't care exactly what the directories were set to originally.
+# plugindir is not fixed, but we don't create any plugins.
+#
 mysql5_sysroot_preprocess () {
-	sed -i -es,^pkgincludedir=\'/usr/include/mysql\',pkgincludedir=\'${STAGING_INCDIR}/mysql\', ${SYSROOT_DESTDIR}${bindir_crossscripts}/mysql_config
-	sed -i -es,^pkglibdir=\'/usr/lib/mysql\',pkglibdir=\'${STAGING_LIBDIR}\', ${SYSROOT_DESTDIR}${bindir_crossscripts}/mysql_config
+	sed -i -es,^pkgincludedir=.*,pkgincludedir=\'${STAGING_INCDIR}/mysql\', ${SYSROOT_DESTDIR}${bindir_crossscripts}/mysql_config
+	sed -i -es,^pkglibdir=.*,pkglibdir=\'${STAGING_LIBDIR}\', ${SYSROOT_DESTDIR}${bindir_crossscripts}/mysql_config
 }
 
 do_install() {
