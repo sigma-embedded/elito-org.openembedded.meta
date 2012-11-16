@@ -21,7 +21,7 @@ KLIBC_ARCH_i586 = 'i386'
 KLIBC_ARCH_i686 = 'i386'
 KLIBC_ARCH_pentium = 'i386'
 
-SRCREV = "1a6f222b01cead2ec48556203f0e200107eb4c2f"
+SRCREV = "f05ff116bb9edbbb81d82fa47b78e630ce878470"
 SRC_URI = "git://git.kernel.org/pub/scm/libs/klibc/klibc.git;protocol=git"
 
 SRC_URI_append_linux-gnueabi = " file://klibc-config-eabi.patch"

@@ -52,7 +52,7 @@ def get_git_pkgv(d, use_tags):
     import bb
     from pipes import quote
 
-    src_uri = bb.data.getVar('SRC_URI', d, 1).split()
+    src_uri = d.getVar('SRC_URI', 1).split()
     cachedir = bb.data.expand("${DL_DIR}/gitpkgv", d)
     fetcher = bb.fetch2.Fetch(src_uri, d)
     ud = fetcher.ud
@@ -62,7 +62,7 @@ def get_git_pkgv(d, use_tags):
     #
     # If SRCREV_FORMAT is set respect it for tags
     #
-    format = bb.data.getVar('SRCREV_FORMAT', d, True)
+    format = d.getVar('SRCREV_FORMAT', True)
     if not format:
         format = 'default'
 
