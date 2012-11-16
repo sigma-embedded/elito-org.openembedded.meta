@@ -53,11 +53,8 @@ def get_git_pkgv(d, use_tags):
     from pipes import quote
 
     src_uri = d.getVar('SRC_URI', 1).split()
-    cachedir = d.expand("${DL_DIR}/gitpkgv", True)
     fetcher = bb.fetch2.Fetch(src_uri, d)
     ud = fetcher.ud
-
-    bb.utils.mkdirhier(cachedir)
 
     #
     # If SRCREV_FORMAT is set respect it for tags
@@ -76,11 +73,10 @@ def get_git_pkgv(d, use_tags):
                 found = True
 
                 vars = { 'repodir' : quote(url.localpath),
-                         'rev' : quote(rev),
-                       }
+                         'rev' : quote(rev) }
 
                 rev = bb.fetch2.get_srcrev(d).split('+')[1]
-                rev_file = os.path.join(cachedir, rev)
+                rev_file = os.path.join(url.localpath, "oe-gitpkgv_" + rev)
 
                 if not os.path.exists(rev_file) or os.path.getsize(rev_file)==0:
                     commits = bb.fetch2.runfetchcmd(
