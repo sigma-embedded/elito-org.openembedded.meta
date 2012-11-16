@@ -53,7 +53,7 @@ def get_git_pkgv(d, use_tags):
     from pipes import quote
 
     src_uri = d.getVar('SRC_URI', 1).split()
-    cachedir = bb.data.expand("${DL_DIR}/gitpkgv", d)
+    cachedir = d.expand("${DL_DIR}/gitpkgv", True)
     fetcher = bb.fetch2.Fetch(src_uri, d)
     ud = fetcher.ud
 
