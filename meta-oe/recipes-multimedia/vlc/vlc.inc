@@ -3,7 +3,7 @@ HOMEPAGE = "http://www.videolan.org"
 LICENSE = "GPLv2"
 SECTION = "multimedia"
 
-DEPENDS = "libfribidi libtool libgcrypt gst-plugins-bad virtual/libsdl qt4-x11-free dbus libxml2 gnutls tremor faad2 ffmpeg flac libxpm \
+DEPENDS = "libfribidi libtool libgcrypt gst-plugins-bad virtual/libsdl qt4-x11-free dbus libxml2 gnutls tremor faad2 ffmpeg flac libxpm fluidsynth alsa-lib \
            ${@base_conditional('ENTERPRISE_DISTRO', '1', '', 'libmad libid3tag liba52 mpeg2dec', d)}"
 
 SRC_URI = "http://download.videolan.org/pub/videolan/vlc/${PV}/vlc-${PV}.tar.bz2"
@@ -62,6 +62,7 @@ EXTRA_OECONF = "\
 	--enable-dbus \
 	--disable-hal \	
 	--without-contrib \
+	--without-kde-solid \
 	--disable-opengl --disable-glx \
 	--enable-realrtsp \
 	ac_cv_path_MOC=${STAGING_BINDIR_NATIVE}/moc4 \
@@ -82,4 +83,3 @@ do_configure() {
 	sed -i -e s:-L/usr/lib:-L${STAGING_LIBDIR}/:g vlc-config
 	sed -i -e s:'$(MOC) $(DEFS) $(CPPFLAGS)':'$(MOC) $(DEFS)'\ -I${S}/include\ -DSYS_LINUX:g ${S}/modules/gui/qt4/Makefile
 }
-

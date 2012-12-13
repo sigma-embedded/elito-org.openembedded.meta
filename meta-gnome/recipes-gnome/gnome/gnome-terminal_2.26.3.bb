@@ -1,5 +1,6 @@
 DESCRIPTION = "GNOME Terminal"
-LICENSE = "GPL"
+LICENSE = "GPL-2.0"
+LIC_FILES_CHKSUM = "file://COPYING;md5=5b51eba4ba4cafe64073227530c061ed"
 DEPENDS = "gtk+ glib-2.0 startup-notification dbus-glib vte"
 PR = "r2"
 
@@ -14,3 +15,5 @@ do_configure_prepend () {
 	rm -f ${S}/src/terminal-type-builtins.c
 }
 
+SRC_URI[archive.md5sum] = "0395af0d444ed4fbfabf65d3583119c8"
+SRC_URI[archive.sha256sum] = "ecddbf523700820524b2646451c307c5b55078b9cebe5fa464ef626b4b4cbda2"

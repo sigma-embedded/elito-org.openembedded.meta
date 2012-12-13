@@ -1,4 +1,6 @@
-LICENSE = "LGPLv2"
+LICENSE = "LGPL-2.0"
+LIC_FILES_CHKSUM = "file://COPYING;md5=fbc093901857fcd118f065f900982c24"
+
 PV = "0.0.1+svnr${SRCPV}"
 
 require e-module.inc
@@ -16,7 +18,7 @@ FILES_${PN} += "${libdir}/enlightenment/modules/*/*.desktop \
                 ${libdir}/enlightenment/modules/*/*.edj \
                 ${libdir}/enlightenment/modules/*/*/*.so"
 
-FILES_${PN}-static += "${libdir}/enlightenment/modules/*/*/*.a"
+FILES_${PN}-staticdev += "${libdir}/enlightenment/modules/*/*/*.a"
 FILES_${PN}-dev += "${libdir}/enlightenment/modules/*/*/*.la"
 FILES_${PN}-dbg += "${libdir}/enlightenment/modules/*/*/.debug"
  
