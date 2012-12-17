@@ -3,7 +3,7 @@ require samba-basic.inc
 LICENSE = "GPLv3"
 LIC_FILES_CHKSUM = "file://../COPYING;md5=d32239bcb673463ab874e80d47fae504"
 
-PR = "r3"
+PR = "r4"
 
 SRC_URI += "\
     file://config-h.patch \
@@ -50,6 +50,7 @@ EXTRA_OECONF += "\
 	"
 
 do_configure() {
+	gnu-configize --force
 	oe_runconf
 }
 
