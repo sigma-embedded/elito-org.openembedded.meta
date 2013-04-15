@@ -7,36 +7,37 @@ PROVIDES = "virtual/gpsd"
 
 EXTRANATIVEPATH += "chrpath-native"
 
-PR = "r3"
+PR = "r6"
 
 SRC_URI = "http://download.savannah.gnu.org/releases/${PN}/${P}.tar.gz \
-  file://0002-SConstruct-respect-sysroot-also-in-SPLINTOPTS.patch \
-  file://0004-SConstruct-remove-rpath.patch \
-  file://0001-SConstruct-prefix-includepy-with-sysroot-and-drop-sy.patch \
-  file://0001-SConstruct-disable-html-and-man-docs-building-becaus.patch \
-  file://gpsd-default \
-  file://gpsd \
-  file://60-gpsd.rules \
+    file://0002-SConstruct-respect-sysroot-also-in-SPLINTOPTS.patch \
+    file://0004-SConstruct-remove-rpath.patch \
+    file://0001-SConstruct-prefix-includepy-with-sysroot-and-drop-sy.patch \
+    file://0001-SConstruct-disable-html-and-man-docs-building-becaus.patch \
+    file://gpsd-default \
+    file://gpsd \
+    file://60-gpsd.rules \
+    file://gpsd.service \
 "
 SRC_URI[md5sum] = "52d9785eaf1a51298bb8900dbde88f98"
 SRC_URI[sha256sum] = "7800c478ee9d7ca7a502b0f892828561b1fbf7bc69d9d38c447c82c3628302ac"
 
-inherit scons update-rc.d python-dir pythonnative
+inherit scons update-rc.d python-dir pythonnative systemd
 
 INITSCRIPT_NAME = "gpsd"
 INITSCRIPT_PARAMS = "defaults 35"
 
-SYSTEMD_OESCONS ??= "false"
+SYSTEMD_OESCONS = "${@base_contains('DISTRO_FEATURES', 'systemd', 'true', 'false',d)}"
 
 export STAGING_INCDIR
 export STAGING_LIBDIR
 
 EXTRA_OESCONS = " \
-  sysroot=${STAGING_DIR_TARGET} \
-  libQgpsmm='false' \
-  debug='true' \
-  strip='false' \
-  systemd='${SYSTEMD_OESCONS}' \
+    sysroot=${STAGING_DIR_TARGET} \
+    libQgpsmm='false' \
+    debug='true' \
+    strip='false' \
+    systemd='${SYSTEMD_OESCONS}' \
 "
 # this cannot be used, because then chrpath is not found and only static lib is built
 # target=${HOST_SYS}
@@ -79,19 +80,24 @@ do_install_append() {
     #support for python
     install -d ${D}/${PYTHON_SITEPACKAGES_DIR}/gps
     install -m 755 ${S}/gps/*.py ${D}/${PYTHON_SITEPACKAGES_DIR}/gps
+
+    #support for systemd
+    install -d ${D}${systemd_unitdir}/system/
+    install -m 0644 ${WORKDIR}/${PN}.service ${D}${systemd_unitdir}/system/${PN}.service
+    install -m 0644 ${S}/systemd/${PN}.socket ${D}${systemd_unitdir}/system/${PN}.socket
 }
 
 pkg_postinst_${PN}-conf() {
-	update-alternatives --install ${sysconfdir}/default/gpsd gpsd-defaults ${sysconfdir}/default/gpsd.default 10
+    update-alternatives --install ${sysconfdir}/default/gpsd gpsd-defaults ${sysconfdir}/default/gpsd.default 10
 }
 
 pkg_postrm_${PN}-conf() {
-	update-alternatives --remove gpsd-defaults ${sysconfdir}/default/gpsd.default
+    update-alternatives --remove gpsd-defaults ${sysconfdir}/default/gpsd.default
 }
 
 PACKAGES =+ "libgps libgpsd python-pygps-dbg python-pygps gpsd-udev gpsd-conf gpsd-gpsctl gps-utils"
 
-FILES_gpsd-dev += "${libdir}/pkgconfdir/libgpsd.pc ${libdir}/pkgconfdir/libgps.pc"
+FILES_${PN}-dev += "${libdir}/pkgconfdir/libgpsd.pc ${libdir}/pkgconfdir/libgps.pc"
 
 FILES_python-pygps-dbg += " ${libdir}/python*/site-packages/gps/.debug"
 
@@ -121,3 +127,8 @@ RDEPENDS_gps-utils = "python-pygps"
 DESCRIPTION_python-pygps = "Python bindings to gpsd"
 FILES_python-pygps = "${PYTHON_SITEPACKAGES_DIR}/*"
 RDEPENDS_python-pygps = "python-core python-curses gpsd python-json"
+
+RPROVIDES_${PN} += "${PN}-systemd"
+RREPLACES_${PN} += "${PN}-systemd"
+RCONFLICTS_${PN} += "${PN}-systemd"
+SYSTEMD_SERVICE_${PN} = "${PN}.socket"

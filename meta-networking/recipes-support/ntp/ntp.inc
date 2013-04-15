@@ -8,7 +8,7 @@ SECTION = "console/network"
 LICENSE = "NTP"
 LIC_FILES_CHKSUM = "file://COPYRIGHT;md5=fea4b50c33b18c2194b4b1c9ca512670"
 
-INC_PR = "r3"
+INC_PR = "r6"
 
 SRC_URI = "http://www.eecis.udel.edu/~ntp/ntp_spool/ntp4/ntp-4.2/ntp-${PV}.tar.gz \
            file://tickadj.c.patch \
@@ -18,9 +18,11 @@ SRC_URI = "http://www.eecis.udel.edu/~ntp/ntp_spool/ntp4/ntp-4.2/ntp-${PV}.tar.g
            file://ntp.conf \
            file://ntpdate \
            file://ntpdate.default \
-           "
+           file://ntpdate.service \
+           file://ntpd.service \
+"
 
-inherit autotools update-rc.d
+inherit autotools update-rc.d systemd
 
 # The ac_cv_header_readline_history is to stop ntpdc depending on either
 # readline or curses
@@ -35,23 +37,27 @@ PACKAGECONFIG[openssl] = "--with-openssl-libdir=${STAGING_LIBDIR} \
                           openssl"
 
 do_install_append() {
-	install -d ${D}${sysconfdir}/init.d
-	install -m 644 ${WORKDIR}/ntp.conf ${D}${sysconfdir}
-	install -m 755 ${WORKDIR}/ntpd ${D}${sysconfdir}/init.d
-	install -d ${D}${bindir}
-	install -m 755 ${WORKDIR}/ntpdate ${D}${bindir}/ntpdate-sync
+    install -d ${D}${sysconfdir}/init.d
+    install -m 644 ${WORKDIR}/ntp.conf ${D}${sysconfdir}
+    install -m 755 ${WORKDIR}/ntpd ${D}${sysconfdir}/init.d
+    install -d ${D}${bindir}
+    install -m 755 ${WORKDIR}/ntpdate ${D}${bindir}/ntpdate-sync
 
-	# Fix hardcoded paths in scripts
-	sed -i 's!/usr/sbin/!${sbindir}/!g' ${D}${sysconfdir}/init.d/ntpd ${D}${bindir}/ntpdate-sync
-	sed -i 's!/usr/bin/!${bindir}/!g' ${D}${sysconfdir}/init.d/ntpd ${D}${bindir}/ntpdate-sync
-	sed -i 's!/etc/!${sysconfdir}/!g' ${D}${sysconfdir}/init.d/ntpd ${D}${bindir}/ntpdate-sync
-	sed -i 's!/var/!${localstatedir}/!g' ${D}${sysconfdir}/init.d/ntpd ${D}${bindir}/ntpdate-sync
-	sed -i 's!^PATH=.*!PATH=${base_sbindir}:${base_bindir}:${sbindir}:${bindir}!' ${D}${bindir}/ntpdate-sync
+    # Fix hardcoded paths in scripts
+    sed -i 's!/usr/sbin/!${sbindir}/!g' ${D}${sysconfdir}/init.d/ntpd ${D}${bindir}/ntpdate-sync
+    sed -i 's!/usr/bin/!${bindir}/!g' ${D}${sysconfdir}/init.d/ntpd ${D}${bindir}/ntpdate-sync
+    sed -i 's!/etc/!${sysconfdir}/!g' ${D}${sysconfdir}/init.d/ntpd ${D}${bindir}/ntpdate-sync
+    sed -i 's!/var/!${localstatedir}/!g' ${D}${sysconfdir}/init.d/ntpd ${D}${bindir}/ntpdate-sync
+    sed -i 's!^PATH=.*!PATH=${base_sbindir}:${base_bindir}:${sbindir}:${bindir}!' ${D}${bindir}/ntpdate-sync
 
-	install -d ${D}/${sysconfdir}/default
-	install -m 644 ${WORKDIR}/ntpdate.default ${D}${sysconfdir}/default/ntpdate
-	install -d ${D}/${sysconfdir}/network/if-up.d
-	ln -s ${bindir}/ntpdate-sync ${D}/${sysconfdir}/network/if-up.d
+    install -d ${D}/${sysconfdir}/default
+    install -m 644 ${WORKDIR}/ntpdate.default ${D}${sysconfdir}/default/ntpdate
+    install -d ${D}/${sysconfdir}/network/if-up.d
+    ln -s ${bindir}/ntpdate-sync ${D}/${sysconfdir}/network/if-up.d
+
+    install -d ${D}${systemd_unitdir}/system
+    install -m 0644 ${WORKDIR}/ntpdate.service ${D}${systemd_unitdir}/system/
+    install -m 0644 ${WORKDIR}/ntpd.service ${D}${systemd_unitdir}/system/
 }
 
 PACKAGES += "ntpdate ${PN}-tickadj ${PN}-utils"
@@ -65,12 +71,29 @@ RPROVIDES_${PN}-utils = "${PN}-bin"
 RREPLACES_${PN}-utils = "${PN}-bin"
 RCONFLICTS_${PN}-utils = "${PN}-bin"
 
+SYSTEMD_PACKAGES = "${PN} ntpdate"
+SYSTEMD_SERVICE_${PN} = "ntpd.service"
+SYSTEMD_SERVICE_ntpdate = "ntpdate.service"
+
+RPROVIDES_${PN} += "${PN}-systemd"
+RREPLACES_${PN} += "${PN}-systemd"
+RCONFLICTS_${PN} += "${PN}-systemd"
+
+RPROVIDES_ntpdate += "ntpdate-systemd"
+RREPLACES_ntpdate += "ntpdate-systemd"
+RCONFLICTS_ntpdate += "ntpdate-systemd"
+
 RSUGGESTS_${PN} = "iana-etc"
 
 FILES_${PN} = "${bindir}/ntpd ${sysconfdir}/ntp.conf ${sysconfdir}/init.d/ntpd ${sbindir} ${libdir}"
 FILES_${PN}-tickadj = "${bindir}/tickadj"
 FILES_${PN}-utils = "${bindir}"
-FILES_ntpdate = "${bindir}/ntpdate ${sysconfdir}/network/if-up.d/ntpdate-sync ${bindir}/ntpdate-sync ${sysconfdir}/default/ntpdate"
+FILES_ntpdate = "${bindir}/ntpdate \
+    ${sysconfdir}/network/if-up.d/ntpdate-sync \
+    ${bindir}/ntpdate-sync \
+    ${sysconfdir}/default/ntpdate \
+    ${systemd_unitdir}/system/ntpdate.service \
+"
 
 CONFFILES_${PN} = "${sysconfdir}/ntp.conf"
 CONFFILES_ntpdate = "${sysconfdir}/default/ntpdate"
@@ -81,13 +104,13 @@ INITSCRIPT_PARAMS = "defaults"
 
 pkg_postinst_ntpdate() {
 if test "x$D" != "x"; then
-        exit 1
+    exit 1
 else
-        if ! grep -q -s ntpdate /var/spool/cron/root; then
-                echo "adding crontab"
-                test -d /var/spool/cron || mkdir -p /var/spool/cron
-                echo "30 * * * *    ${bindir}/ntpdate-sync silent" >> /var/spool/cron/root
-        fi
+    if ! grep -q -s ntpdate /var/spool/cron/root; then
+        echo "adding crontab"
+        test -d /var/spool/cron || mkdir -p /var/spool/cron
+        echo "30 * * * *    ${bindir}/ntpdate-sync silent" >> /var/spool/cron/root
+    fi
 fi
 }
 

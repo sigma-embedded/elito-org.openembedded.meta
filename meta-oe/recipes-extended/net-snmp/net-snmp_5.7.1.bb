@@ -8,18 +8,22 @@ SRC_URI = "${SOURCEFORGE_MIRROR}/net-snmp/net-snmp-${PV}.tar.gz \
         file://libnl-3-support.patch \
         file://init \
         file://snmpd.conf \
-        file://snmptrapd.conf"
+        file://snmptrapd.conf \
+        file://systemd-support.patch \
+        file://snmpd.service \
+        file://snmptrapd.service \
+"
 
 EXTRA_OECONF += "--disable-embedded-perl --with-perl-modules=no"
 EXTRA_OEMAKE = "INSTALL_PREFIX=${D}"
 
 do_configure_prepend() {
-        gnu-configize -f
-        # We better change sources and re-autoconf here, but
-        # required autoconf is too new for us.
-        sed -e '/echo.*\".*\\\\.*\"/s/echo/echo -e/g' \
-            -e 's/tail -1/tail -n 1/g'                \
-            -i configure
+    gnu-configize -f
+    # We better change sources and re-autoconf here, but
+    # required autoconf is too new for us.
+    sed -e '/echo.*\".*\\\\.*\"/s/echo/echo -e/g' \
+        -e 's/tail -1/tail -n 1/g' \
+        -i configure
 }
 
 PARALLEL_MAKE = ""

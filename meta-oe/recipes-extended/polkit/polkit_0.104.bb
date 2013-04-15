@@ -15,7 +15,7 @@ PACKAGECONFIG[systemd] = "--enable-systemd,--disable-systemd,systemd"
 # there is no --enable/--disable option for consolekit and it's not picked by shlibs, so add it to RDEPENDS
 PACKAGECONFIG[consolekit] = ",,,consolekit"
 
-PR = "r9"
+PR = "r12"
 
 PAM_SRC_URI = "file://polkit-1_pam.patch"
 SRC_URI = "http://www.freedesktop.org/software/polkit/releases/polkit-${PV}.tar.gz \
@@ -23,7 +23,7 @@ SRC_URI = "http://www.freedesktop.org/software/polkit/releases/polkit-${PV}.tar.
            file://0001-PolkitUnixSession-Set-error-if-we-cannot-find-a-sess.patch \
            file://0002-PolkitUnixSession-Actually-return-TRUE-if-a-session-.patch \
            file://obsolete_automake_macros.patch \
-          "
+"
 
 SRC_URI[md5sum] = "e380b4c6fb1e7bccf854e92edc0a8ce1"
 SRC_URI[sha256sum] = "6b0a13d8381e4a7b7e37c18a54595191b50757e0fcd186cd9918e9ad0f18c7f9"
@@ -33,7 +33,7 @@ EXTRA_OECONF = "--with-os-type=moblin --disable-man-pages --disable-introspectio
 inherit autotools gtk-doc pkgconfig
 
 do_install_append() {
-	rm -f ${D}${libdir}/${BPN}-1/extensions/*.a
+    rm -f ${D}${libdir}/${BPN}-1/extensions/*.a
 }
 
 FILES_${PN} += "${libdir}/${BPN}-1/extensions/*.so \
@@ -41,4 +41,3 @@ FILES_${PN} += "${libdir}/${BPN}-1/extensions/*.so \
                 ${datadir}/dbus-1/system-services/*"
 FILES_${PN}-dbg += "${libdir}/${BPN}-1/extensions/.debug/*.so"
 FILES_${PN}-dev += "${libdir}/${BPN}-1/extensions/*.la "
-
