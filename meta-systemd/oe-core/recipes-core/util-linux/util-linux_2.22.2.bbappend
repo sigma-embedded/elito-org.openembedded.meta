@@ -1,9 +1,10 @@
 inherit systemd
 
-PRINC := "${@int(PRINC) + 1}"
+PRINC := "${@int(PRINC) + 2}"
 
 SYSTEMD_UNITDIR = "${systemd_unitdir}/system"
 EXTRA_OECONF += "--enable-socket-activation --with-systemdsystemunitdir=${SYSTEMD_UNITDIR}"
-SYSTEMD_PACKAGES = "${PN}-uuidd"
-RPROVIDES_${PN}-uuid += "${PN}-systemd"
-SYSTEMD_SERVICE_${PN}-uuid = "uuidd.socket"
+RPROVIDES_${PN} += "${PN}-systemd"
+RREPLACES_${PN} += "${PN}-systemd"
+RCONFLICTS_${PN} += "${PN}-systemd"
+SYSTEMD_SERVICE_${PN} = "uuidd.socket"
