@@ -54,6 +54,7 @@ EXTRA_OECONF = " \
     vim_cv_tgent=non-zero \
     vim_cv_toupper_broken=no \
     vim_cv_tty_group=world \
+    STRIP=/bin/true \
 "
 
 # Work around rpm picking up csh as a dep
@@ -68,6 +69,9 @@ FILES_${PN}-help = "${datadir}/${PN}/${VIMDIR}/doc"
 FILES_${PN}-tutor = "${datadir}/${PN}/${VIMDIR}/tutor ${bindir}/${PN}tutor"
 FILES_${PN}-vimrc = "${datadir}/${PN}/vimrc"
 FILES_${PN}-data = "${datadir}/${PN}"
+
+# Recommend that runtime data is installed along with vim
+RRECOMMENDS_${PN} = "${PN}-syntax ${PN}-help ${PN}-tutor ${PN}-vimrc ${PN}-data"
 
 ALTERNATIVE_${PN} = "vi"
 ALTERNATIVE_TARGET[vi] = "${bindir}/${PN}"
