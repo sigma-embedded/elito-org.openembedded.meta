@@ -24,7 +24,11 @@ S = "${WORKDIR}/OpenCV-${PV}"
 OECMAKE_SOURCEPATH = "${S}"
 OECMAKE_BUILDPATH = "${WORKDIR}/build-${TARGET_ARCH}"
 
-PACKAGECONFIG ??= ""
+PACKAGECONFIG ??= "\
+  ${@base_contains('DISTRO_DERIVED_FEATURES', 'gtk-supported', 'gtk', '', d) \
+  ${@base_contains('DISTRO_DERIVED_FEATURES', 'v4l', 'v4l', '', d) \
+  ffpmeg \
+"
 PACKAGECONFIG[gtk] = "-DWITH_GTK=ON,-DWITH_GTK=OFF,gtk+,"
 PACKAGECONFIG[ffmpeg] = "-DWITH_FFMPEG=ON,-DWITH_FFMPEG=OFF,libav,"
 PACKAGECONFIG[v4l] = "-DWITH_V4L=ON,-DWITH_V4L=OFF,v4l-utils,"
