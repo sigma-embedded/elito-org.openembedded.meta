@@ -7,7 +7,7 @@ LIC_FILES_CHKSUM = "file://include/opencv2/opencv.hpp;endline=41;md5=6d690d8488a
 
 ARM_INSTRUCTION_SET = "arm"
 
-DEPENDS = "python-numpy v4l-utils libav gtk+ libtool swig swig-native python jpeg bzip2 zlib libpng tiff glib-2.0"
+DEPENDS = "python-numpy libtool swig swig-native python jpeg bzip2 zlib libpng tiff glib-2.0"
 
 SRC_URI = "${SOURCEFORGE_MIRROR}/opencvlibrary/opencv-unix/${PV}/OpenCV-${PV}.tar.bz2 \
            file://opencv-fix-pkgconfig-generation.patch \
@@ -24,12 +24,14 @@ S = "${WORKDIR}/OpenCV-${PV}"
 OECMAKE_SOURCEPATH = "${S}"
 OECMAKE_BUILDPATH = "${WORKDIR}/build-${TARGET_ARCH}"
 
+PACKAGECONFIG ??= ""
+PACKAGECONFIG[gtk] = "-DWITH_GTK=ON,-DWITH_GTK=OFF,gtk+,"
+PACKAGECONFIG[ffmpeg] = "-DWITH_FFMPEG=ON,-DWITH_FFMPEG=OFF,libav,"
+PACKAGECONFIG[v4l] = "-DWITH_V4L=ON,-DWITH_V4L=OFF,v4l-utils,"
+PACKAGECONFIG[gstreamer] = "-DWITH_GSTREAMER=ON,-DWITH_GSTREAMER=OFF,gstreamer,"
+
 EXTRA_OECMAKE = "-DPYTHON_NUMPY_INCLUDE_DIR:PATH=${STAGING_LIBDIR}/${PYTHON_DIR}/site-packages/numpy/core/include \
                  -DBUILD_PYTHON_SUPPORT=ON \
-                 -DWITH_FFMPEG=ON \
-                 -DWITH_GSTREAMER=OFF \
-                 -DWITH_V4L=ON \
-                 -DWITH_GTK=ON \
                  -DCMAKE_SKIP_RPATH=ON \
                  ${@bb.utils.contains("TARGET_CC_ARCH", "-msse3", "-DENABLE_SSE=1 -DENABLE_SSE2=1 -DENABLE_SSE3=1 -DENABLE_SSSE3=1", "", d)} \
 "
