@@ -50,20 +50,13 @@ PACKAGECONFIG[sqlite3] = "--with-sqlite3=${STAGING_LIBDIR}/.. \
                           , \
                           ,sqlite3"
 
-LIBS_virtclass-native = " -lxml2 "
-LIBS_pn-php =" -lpthread "
-export LIBS
-THREADS_pn-php = "pthread"
-export THREADS
 export PHP_NATIVE_DIR = "${STAGING_BINDIR_NATIVE}"
 export PHP_PEAR_PHP_BIN = "${STAGING_BINDIR_NATIVE}/php"
-CFLAGS += " -DPTYS_ARE_GETPT -DPTYS_ARE_SEARCHED -D_GNU_SOURCE"
+CFLAGS += " -D_GNU_SOURCE"
+
+EXTRA_OEMAKE = "INSTALL_ROOT=${D}"
 
 acpaths = ""
-
-do_install  () {
-    oe_runmake 'INSTALL_ROOT=${D}' install
-}
 
 do_install_append_pn-php-native() {
     rm -rf ${D}/${libdir}/php/.registry
