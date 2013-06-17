@@ -15,8 +15,6 @@ ARM_INSTRUCTION_SET = "arm"
 
 SRC_URI_append_libc-uclibc = " file://arm_fenv_uclibc.patch "
 
-PARALLEL_MAKE_virtclass-native = ""
-
 LLVM_EXTRA_ARCH = "X86;"
 LLVM_EXTRA_ARCH_x86 = ""
 LLVM_EXTRA_ARCH_x86-64 = ""
@@ -36,6 +34,7 @@ EXTRA_OECMAKE = "\
     -DLLVM_ENABLE_ASSERTIONS:BOOL=ON \
     -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
     -DBUILD_SHARED_LIBS:BOOL=ON \
+    -DCMAKE_SKIP_BUILD_RPATH:BOOL=ON \
 "
 
 LLVM_RELEASE = "2.9"
