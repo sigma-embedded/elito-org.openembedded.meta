@@ -6,8 +6,12 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=f27defe1e96c2e1ecd4e0c9be8967949"
 
 SRC_URI = "http://download.savannah.gnu.org/releases/lzip/lzip-${PV}.tar.gz"
 
-SRC_URI[md5sum] = "2f401e995c36cca05bd1805aa9c28231"
-SRC_URI[sha256sum] = "c73d36c0a926b71d484eacc192262a1d209674e3f903016f2c74a2bcbc5c28ac"
+# Only the latest version is available in .tar.gz format from savannah.gnu.org,
+# FreeBSD distfiles is known to have version 1.13.
+MIRRORS += "http://download.savannah.gnu.org/releases/lzip/ ftp://ftp.freebsd.org/pub/FreeBSD/ports/distfiles/"
+
+SRC_URI[md5sum] = "39a4b06952ee45274525dc0582cdd651"
+SRC_URI[sha256sum] = "7ff5cc521560edb2a0a6cdf258cf3afdaeb1dbcc354d96d011d0dd7ec584cbe7"
 
 CONFIGUREOPTS = "\
     '--srcdir=${S}' \
