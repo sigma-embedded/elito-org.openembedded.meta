@@ -16,6 +16,8 @@ SRC_URI[sha256sum] = "ecc91ba3d918e96fb7d5eb9acce978af803b130e0b33b08d5ea05b2bfc
 
 inherit update-rc.d
 
+RDEPENDS_${PN}-dev = ""
+
 INITSCRIPT_PACKAGES = "${PN}-fancontrol ${PN}-sensord"
 INITSCRIPT_NAME_${PN}-fancontrol = "fancontrol"
 INITSCRIPT_NAME_${PN}-sensord = "sensord"
@@ -91,7 +93,7 @@ RDEPENDS_${PN}-sensors = "${PN}-libsensors"
 FILES_${PN}-sensord = "${bindir}/sensord ${sysconfdir}/init.d/sensord"
 FILES_${PN}-sensord-dbg = "${bindir}/.debug/sensord"
 FILES_${PN}-sensord-doc = "${mandir}/man8/sensord.8"
-RDEPENDS_${PN}-sensord = "${PN}-sensors rrdtool lighttpd lighttpd-module-cgi"
+RDEPENDS_${PN}-sensord = "${PN}-sensors rrdtool"
 RRECOMMENDS_${PN}-sensord = "lmsensors-config-sensord"
 
 # fancontrol script files
