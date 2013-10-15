@@ -15,6 +15,7 @@ SRC_URI = "http://mirrors.coreix.net/mariadb/mariadb-${PV}/kvm-tarbake-jaunty-x8
            file://configure-ps-cache-check.patch \
            file://fix-cve-2013-1861-1.patch \
            file://fix-cve-2013-1861-2.patch \
+           file://zlib-let-libdir-configurable.patch \
            file://my.cnf \
            file://mysqld.sh"
 
@@ -51,6 +52,7 @@ EXTRA_OECONF = "--with-atomic-ops=up \
                 --without-man \
                 --without-docs \
                 --with-zlib-dir=${STAGING_EXECPREFIXDIR} \
+                --with-baselib-dir=${base_libdir} \
                 --with-pic \
                 "
 
@@ -80,6 +82,7 @@ do_install() {
     oe_runmake 'DESTDIR=${D}' install
     mv -f ${D}${libdir}/mysql/* ${D}${libdir}
     rmdir ${D}${libdir}/mysql
+    find ${D}${libdir} -name '*.la'|xargs sed -i 's#${libdir}/mysql#${libdir}#'
 
     install -d ${D}/etc/init.d
     install -m 0644 ${WORKDIR}/my.cnf ${D}/etc/

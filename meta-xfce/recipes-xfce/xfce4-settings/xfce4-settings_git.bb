@@ -2,7 +2,7 @@ DESCRIPTION = "Xfce4 settings"
 SECTION = "x11/wm"
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=94d55d512a9ba36caa9b7df079bae19f"
-DEPENDS = "exo garcon gtk+ libxfce4util libxfce4ui xfconf dbus-glib libxi virtual/libx11 xrandr libnotify libxcursor libxklavier"
+DEPENDS = "exo exo-native garcon gtk+ libxfce4util libxfce4ui xfconf dbus-glib libxi virtual/libx11 xrandr libnotify libxcursor libxklavier"
 
 inherit xfce
 
@@ -19,7 +19,7 @@ SRC_URI = " git://gitorious.org/xfce/xfce4-settings.git;protocol=git;branch=for-
 "
 SRCREV = "b7a0e1fd77f5bb5c372223ff62aec7acf252f061"
 S = "${WORKDIR}/git"
-PV = "4.10.0+git${SRCPV}"
+PV = "4.11.0+git${SRCPV}"
  
 EXTRA_OECONF += "--enable-maintainer-mode --disable-debug"
 
