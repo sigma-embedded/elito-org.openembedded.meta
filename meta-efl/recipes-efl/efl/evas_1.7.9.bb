@@ -46,7 +46,7 @@ PACKAGES_DYNAMIC += "^evas-engine-.* ^evas-loader-.* ^evas-saver-.* ^evas-cserve
 # http://blog.gmane.org/gmane.comp.window-managers.enlightenment.user/page=3
 RRECOMMENDS_${PN} += "evas-loader-generic evas-generic-loader-svn"
 
-RRECOMMENDS_${PN} = " \
+RRECOMMENDS_${PN} += " \
     evas-engine-fb \
     evas-engine-software-generic \
     evas-engine-software-x11 \
@@ -171,6 +171,7 @@ PACKAGECONFIG[harfbuzz] = "--enable-harfbuzz,--disable-harfbuzz,harfbuzz"
 
 SRC_URI = "\
     ${E_MIRROR}/${SRCNAME}-${SRCVER}.tar.gz \
+    file://0001-evas_font_load-Fix-build-with-newer-freetype.patch \
 "
 
 SRC_URI[md5sum] = "c96a23ede14cd0adb7e8e549e8acdee1"
