@@ -1,5 +1,7 @@
+SUMMARY = "Cross-platform audio output library and plugins"
+DESCRIPTION = "Libao is a cross-platform audio library that allows programs to \
+               output audio using a simple API on a wide variety of platforms."
 SECTION = "multimedia"
-SUMMARY = "Libao is a cross-platform audio library that allows programs to output audio using a simple API on a wide variety of platforms"
 HOMEPAGE = "https://www.xiph.org/ao/"
 
 LICENSE = "GPLv2"
@@ -23,3 +25,6 @@ python populate_packages_prepend () {
     do_split_packages(d, rootdir, '^(.*)\.so$', output_pattern='${BPN}-plugin-%s', description='AO %s plugin')
     do_split_packages(d, rootdir_dbg, '^(.*)\.so$', output_pattern='${BPN}-plugin-%s-dbg', description='AO %s plugin debug data')
 }
+
+PACKAGECONFIG ?= ""
+PACKAGECONFIG[esound] = "--enable-esd,--disable-esd,esound"

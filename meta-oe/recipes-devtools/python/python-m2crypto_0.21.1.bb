@@ -1,4 +1,4 @@
-DESCRIPTION = "A Python crypto and SSL toolkit"
+SUMMARY = "A Python crypto and SSL toolkit"
 HOMEPAGE = "http://chandlerproject.org/bin/view/Projects/MeTooCrypto"
 
 DEPENDS = "openssl swig-native"
@@ -15,5 +15,9 @@ SRC_URI[sha256sum] = "25b94498505c2d800ee465db0cc1aff097b1615adc3ac042a1c85ceca2
 S = "${WORKDIR}/M2Crypto-${PV}"
 
 inherit setuptools
+
+SWIG_FEATURES_x86-64 = "-D__x86_64__"
+SWIG_FEATURES ?= ""
+export SWIG_FEATURES
 
 BBCLASSEXTEND = "native"
