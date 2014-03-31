@@ -16,6 +16,7 @@ PR = "r1"
 inherit update-alternatives
 
 SRC_URI = "${SOURCEFORGE_MIRROR}/traceroute/traceroute/traceroute-2.0.18/traceroute-2.0.18.tar.gz \
+           file://filter-out-the-patches-from-subdirs.patch \
 "
 
 SRC_URI[md5sum] = "b7254149b7f081cce07f4b9e065ba5ef"
@@ -39,5 +40,5 @@ do_install() {
 
 }
 
-ALTERNATIVE_${PN} = "traceroute6"
-ALTERNATIVE_LINK_NAME[traceroute6] = "${bindir}/traceroute"
+ALTERNATIVE_${PN} = "traceroute"
+ALTERNATIVE_LINK_NAME[traceroute] = "${bindir}/traceroute"
