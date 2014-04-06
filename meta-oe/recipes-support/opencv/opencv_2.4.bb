@@ -30,7 +30,8 @@ EXTRA_OECMAKE = "-DPYTHON_NUMPY_INCLUDE_DIR:PATH=${STAGING_LIBDIR}/${PYTHON_DIR}
                  ${@base_conditional("libdir", "/usr/lib32", "-DLIB_SUFFIX=32", "", d)} \
 "
 
-PACKAGECONFIG ??= "eigen jpeg libav png tiff \
+PACKAGECONFIG ??= "eigen jpeg png tiff \
+  ${@base_contains('LICENSE_FLAGS_WHITELIST', 'commercial', 'libav', '', d)} \
   ${@base_contains('DISTRO_DERIVED_FEATURES', 'gtk-supported', 'gtk', '', d) \
   ${@base_contains('DISTRO_DERIVED_FEATURES', 'v4l', 'v4l', '', d) \
 "
