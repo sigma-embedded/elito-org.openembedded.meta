@@ -6,7 +6,6 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=e7807a6282784a7dde4c846626b08fc6 \
                     file://LICENSE-UNIVERSITIES;md5=8ce9dcc8f7c994de4a408b205c72ba08"
 
 SECTION = "devel"
-INC_PR = "r3"
 
 DEPENDS = "libpcre python"
 
@@ -50,3 +49,15 @@ do_configure() {
     oe_runconf
 }
 
+do_install_append_class-nativesdk() {
+    cd ${D}${bindir}
+    ln -s swig swig2.0
+}
+
+def swiglib_relpath(d):
+    swiglib = d.getVar('datadir', True) + "/" + d.getVar('BPN', True) + "/" + d.getVar('PV', True)
+    return os.path.relpath(swiglib, d.getVar('bindir', True))
+
+do_install_append_class-native() {
+    create_wrapper ${D}${bindir}/swig SWIG_LIB='`dirname $''realpath`'/${@swiglib_relpath(d)}
+}
