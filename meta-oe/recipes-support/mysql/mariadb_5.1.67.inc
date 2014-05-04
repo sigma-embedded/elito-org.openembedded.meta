@@ -28,7 +28,7 @@ S = "${WORKDIR}/mariadb-${PV}"
 
 BINCONFIG_GLOB = "mysql_config"
 
-inherit autotools binconfig update-rc.d useradd
+inherit autotools-brokensep binconfig update-rc.d useradd
 
 INITSCRIPT_PACKAGES = "${PN}-server"
 INITSCRIPT_NAME = "mysqld"
@@ -59,7 +59,7 @@ EXTRA_OECONF = "--with-atomic-ops=up \
                 "
 
 do_configure_append() {
-    sed -i /comp_err/d ${S}/sql/share/Makefile
+    sed -i /comp_err/d ${B}/sql/share/Makefile
 
     # handle distros with different values of ${libexecdir}
     libexecdir2=`echo ${libexecdir} | sed -e 's+/usr/++g'`
@@ -115,6 +115,19 @@ CONFFILES_${PN}-server += "${sysconfdir}/my.cnf"
 FILES_${PN} = " "
 RDEPENDS_${PN} = "${PN}-client ${PN}-server"
 ALLOW_EMPTY_${PN} = "1"
+
+RDEPENDS_${PN}-client = "perl perl-module-getopt-long perl-module-file-temp \
+    perl-module-fcntl perl-module-sys-hostname perl-module-ipc-open3 \
+    perl-module-exporter"
+RDEPENDS_${PN}-server = "perl perl-module-getopt-long perl-module-data-dumper \
+    perl-module-file-basename perl-module-file-path perl-module-sys-hostname \
+    perl-module-file-copy perl-module-file-temp perl-module-posix"
+RDEPENDS_${PN}-leftovers = "perl perl-module-cwd perl-module-benchmark perl-module-getopt-long \
+    perl-module-posix perl-module-data-dumper perl-module-sigtrap perl-module-threads \
+    perl-module-threads-shared perl-module-io-socket perl-module-sys-hostname perl-module-file-copy \
+    perl-module-file-spec perl-module-file-find perl-module-file-basename perl-module-file-path \
+    perl-module-constant perl-module-lib perl-module-file-temp perl-module-file-spec-functions \
+    perl-module-io-socket-inet perl-module-io-select"
 
 FILES_libmysqlclient = "\
     ${libdir}/libmysqlclient.so.* \
