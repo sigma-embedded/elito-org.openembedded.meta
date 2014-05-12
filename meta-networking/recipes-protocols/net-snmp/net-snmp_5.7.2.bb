@@ -16,6 +16,8 @@ SRC_URI = "${SOURCEFORGE_MIRROR}/net-snmp/net-snmp-${PV}.tar.gz \
         file://snmpd.service \
         file://snmptrapd.service \
         file://ifmib.patch \
+        file://net-snmp-5.7.2-fix-CVE-2014-2284.patch \
+        file://net-snmp-5.7.2-fix-CVE-2014-2285.patch \
 "
 
 SRC_URI[md5sum] = "5bddd02e2f82b62daa79f82717737a14"
@@ -36,6 +38,10 @@ EXTRA_OECONF = "--disable-embedded-perl \
                 --disable-manuals \
                 --with-defaults \
                 ${@base_conditional('SITEINFO_ENDIANNESS', 'le', '--with-endianness=little', '--with-endianness=big', d)}"
+
+do_configure_prepend() {
+    export PERLPROG="${bindir}/env perl"
+}
 
 do_install_append() {
     install -d ${D}${sysconfdir}/snmp
