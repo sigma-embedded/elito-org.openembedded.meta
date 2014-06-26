@@ -16,6 +16,7 @@ SRC_URI = "http://www.apache.org/dist/httpd/httpd-${PV}.tar.bz2 \
            file://apache-ssl-ltmain-rpath.patch \
            file://httpd-2.4.3-fix-race-issue-of-dir-install.patch \
            file://npn-patch-2.4.7.patch \
+           file://0001-configure-use-pkg-config-for-PCRE-detection.patch \
            file://init \
            file://apache2-volatile.conf"
 
@@ -25,7 +26,7 @@ SRC_URI[sha256sum] = "f78cc90dfa47caf3d83ad18fd6b4e85f237777c1733fc9088594b70ce2
 
 S = "${WORKDIR}/httpd-${PV}"
 
-inherit autotools update-rc.d
+inherit autotools update-rc.d pkgconfig
 
 SSTATE_SCAN_FILES += "apxs config_vars.mk config.nice"
 
