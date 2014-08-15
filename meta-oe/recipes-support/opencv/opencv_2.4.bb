@@ -31,10 +31,9 @@ EXTRA_OECMAKE = "-DPYTHON_NUMPY_INCLUDE_DIR:PATH=${STAGING_LIBDIR}/${PYTHON_DIR}
 "
 
 PACKAGECONFIG ??= "eigen jpeg png tiff \
-  ${@base_contains('LICENSE_FLAGS_WHITELIST', 'commercial', 'libav', '', d)} \
-  ${@base_contains('DISTRO_DERIVED_FEATURES', 'gtk-supported', 'gtk', '', d) \
-  ${@base_contains('DISTRO_DERIVED_FEATURES', 'v4l', 'v4l', '', d) \
-"
+                   ${@bb.utils.contains('LICENSE_FLAGS_WHITELIST', 'commercial', 'libav', '', d)} \
+                   ${@bb.utils.contains('DISTRO_DERIVED_FEATURES', 'v4l', 'v4l', '', d) \
+                   ${@bb.utils.contains('DISTRO_DERIVED_FEATURES', 'gtk-supported', 'gtk', '', d)"
 
 PACKAGECONFIG[eigen] = "-DWITH_EIGEN=ON,-DWITH_EIGEN=OFF,libeigen,"
 PACKAGECONFIG[gtk] = "-DWITH_GTK=ON,-DWITH_GTK=OFF,gtk+,"
