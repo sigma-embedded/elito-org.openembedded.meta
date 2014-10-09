@@ -5,8 +5,6 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=4d92cd373abda3937c2bc47fbc49d
 
 PR = "r10"
 
-PNBLACKLIST[packagegroup-xfce-extended] = "BROKEN: rdepends on broken xfce4-power-manager -> networkmanager"
-
 inherit packagegroup
 
 # mandatory
@@ -42,6 +40,7 @@ RRECOMMENDS_${PN} = " \
     xfce4-closebutton-plugin \
     xfce4-equake-plugin \
     xfce4-notes-plugin \
+    xfce4-whiskermenu-plugin \
     \
     thunar-media-tags-plugin \
     thunar-archive-plugin \
