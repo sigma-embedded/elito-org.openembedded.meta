@@ -1,19 +1,37 @@
 DESCRIPTION = "A server-side, HTML-embedded scripting language. This package provides the CGI."
 HOMEPAGE = "http://www.php.net"
 SECTION = "console/network"
+
 LICENSE = "PHP-3.0"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=cb564efdf78cce8ea6e4b5a4f7c05d97"
+
 BBCLASSEXTEND = "native"
 DEPENDS = "zlib libxml2 virtual/libiconv php-native lemon-native \
            libc-client openssl"
 DEPENDS_virtclass-native = "zlib-native libxml2-native"
 
-INC_PR = "r5"
-
 # The new PHP downloads server groups PHP releases by major version so find
 # the major version of the PHP recipe.
 PHP_MAJVER = "${@d.getVar('PV',1).split('.')[0]}"
 
-SRC_URI = "http://museum.php.net/php${PHP_MAJVER}/php-${PV}.tar.bz2"
+SRC_URI = "http://php.net/distributions/php-${PV}.tar.bz2 \
+           file://acinclude-xml2-config.patch \
+           file://0001-php-don-t-use-broken-wrapper-for-mkdir.patch \
+           file://0001-acinclude-use-pkgconfig-for-libxml2-config.patch \
+          "
+
+SRC_URI_append_class-target += " \
+            file://iconv.patch \
+            file://imap-fix-autofoo.patch \
+            file://pear-makefile.patch \
+            file://phar-makefile.patch \
+            file://php_exec_native.patch \
+            file://php-fpm.conf \
+            file://php-fpm-apache.conf \
+          "
+
+SRC_URI[md5sum] = "c6878bb1cdb46bfc1e1a5cd67a024737"
+SRC_URI[sha256sum] = "1a75b2d0835e74b8886cd3980d9598a0e06691441bb7f91d19b74c2278e40bb5"
 
 S = "${WORKDIR}/php-${PV}"
 
@@ -61,14 +79,14 @@ EXTRA_OEMAKE = "INSTALL_ROOT=${D}"
 
 acpaths = ""
 
-do_install_append_pn-php-native() {
+do_install_append_class-native() {
     rm -rf ${D}/${libdir}/php/.registry
     rm -rf ${D}/${libdir}/php/.channels
     rm -rf ${D}/${libdir}/php/.[a-z]*
 }
 
 # fixme
-do_install_append_pn-php() {
+do_install_append_class-target() {
     install -d ${D}/${sysconfdir}/
     if [ -d ${D}/${STAGING_DIR_NATIVE}/${sysconfdir} ];then
          mv ${D}/${STAGING_DIR_NATIVE}/${sysconfdir}/* ${D}/${sysconfdir}/
