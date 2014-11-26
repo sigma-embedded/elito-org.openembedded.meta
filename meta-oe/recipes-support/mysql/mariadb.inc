@@ -10,10 +10,12 @@ SRC_URI = "http://mirror.stshosting.co.uk/mariadb/mariadb-${PV}/source/mariadb-$
            file://fix-mysqlclient-r-version.patch \
            file://my.cnf \
            file://mysqld.service \
+           file://configure.cmake-fix-valgrind.patch \
+           file://revert-fix-for-MDEV-5120.patch \
           "
 
-SRC_URI[md5sum] = "917a807d8cf2c8ef9deedd2a89b6decd"
-SRC_URI[sha256sum] = "cb850865ab55ce5f01c99a612cc75b76ead5d75adfa75a606f453d32f9089d14"
+SRC_URI[md5sum] = "561bede89a8bd19c374dad2d8f24fdfe"
+SRC_URI[sha256sum] = "cbde17f4a31483143490def6fcce33310ebae49eafe92dc4ada0e7227202415a"
 
 S = "${WORKDIR}/mariadb-${PV}"
 
@@ -38,6 +40,8 @@ EXTRA_OEMAKE = "'GEN_LEX_HASH=${STAGING_BINDIR_NATIVE}/gen_lex_hash'"
 PACKAGECONFIG ??= "${@bb.utils.contains('DISTRO_FEATURES', 'pam', 'pam', '', d)}"
 PACKAGECONFIG_class-native = ""
 PACKAGECONFIG[pam] = ",-DWITHOUT_AUTH_PAM=TRUE,libpam"
+PACKAGECONFIG[valgrind] = "-DWITH_VALGRIND=TRUE,-DWITHOUT_VALGRIND=TRUE,valgrind"
+PACKAGECONFIG[libedit] = "-DLIBEDIT_INTERFACE=TRUE,-DLIBEDIT_INTERFACE=FALSE,libedit"
 
 # MariaDB doesn't link properly with gold
 # https://mariadb.atlassian.net/browse/MDEV-5982
@@ -131,7 +135,9 @@ PACKAGES = "${PN}-dbg ${PN} \
     libmysqlclient-r libmysqlclient-r-dev libmysqlclient-r-staticdev libmysqlclient-r-dbg \
     libmysqlclient libmysqlclient-dev libmysqlclient-staticdev libmysqlclient-dbg \
     libmysqld libmysqld-dev ${PN}-client ${PN}-server ${PN}-leftovers"
-CONFFILES_${PN}-server += "${sysconfdir}/my.cnf"
+CONFFILES_${PN}-server += "${sysconfdir}/my.cnf ${sysconfdir}/my.cnf.d/server.cnf"
+CONFFILES_${PN}-client += "${sysconfdir}/my.cnf.d/mysql-clients.cnf"
+CONFFILES_libmysqlclient += "${sysconfdir}/my.cnf.d/client.cnf"
 
 FILES_${PN} = " "
 RDEPENDS_${PN} = "${PN}-client ${PN}-server"
@@ -151,7 +157,8 @@ RDEPENDS_${PN}-leftovers = "perl perl-module-cwd perl-module-benchmark perl-modu
     perl-module-io-socket-inet perl-module-io-select"
 
 FILES_libmysqlclient = "\
-    ${libdir}/libmysqlclient.so.*"
+    ${libdir}/libmysqlclient.so.* \
+    ${sysconfdir}/my.cnf.d/client.cnf"
 FILES_libmysqlclient-dev = " \
     ${includedir}/mysql/ \
     ${libdir}/libmysqlclient.so \
@@ -196,7 +203,8 @@ FILES_${PN}-client = "\
     ${bindir}/mysqlshow \
     ${bindir}/mysqlslap \
     ${bindir}/mysqltest_embedded \
-    ${libexecdir}/mysqlmanager"
+    ${libexecdir}/mysqlmanager \
+    ${sysconfdir}/my.cnf.d/mysql-clients.cnf"
 
 FILES_${PN}-server = "\
     ${bindir}/comp_err \
@@ -246,6 +254,7 @@ FILES_${PN}-server = "\
     ${localstatedir}/mysql/ \
     ${sysconfdir}/init.d \
     ${sysconfdir}/my.cnf \
+    ${sysconfdir}/my.cnf.d/server.cnf \
     ${sysconfdir}/tmpfiles.d"
 
 DESCRIPTION_${PN}-leftovers = "unpackaged and probably unneeded files for ${PN}"
