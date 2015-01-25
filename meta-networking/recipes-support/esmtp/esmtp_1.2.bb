@@ -11,7 +11,7 @@ DEPENDS = "libesmtp"
 LICENSE = "GPL-2.0"
 LIC_FILES_CHKSUM = "file://COPYING;md5=0636e73ff0215e8d672dc4c32c317bb3"
 
-SRC_URI = "http://nchc.dl.sourceforge.net/project/${PN}/${PN}/${PV}/${PN}-${PV}.tar.bz2"
+SRC_URI = "${SOURCEFORGE_MIRROR}/${BPN}/${PV}/${BPN}-${PV}.tar.bz2"
 
 # Have to set this or we get -L/lib in LDFLAGS
 EXTRA_OECONF = "--with-libesmtp=${STAGING_EXECPREFIXDIR}"
@@ -30,3 +30,11 @@ SRC_URI[md5sum] = "79a9c1f9023d53f35bb82bf446150a72"
 SRC_URI[sha256sum] = "a0d26931bf731f97514da266d079d8bc7d73c65b3499ed080576ab606b21c0ce"
 
 FILES_${PN} += "${libdir}/"
+
+# The sysroot/${libdir}/sendmail conflicts with lsb's, and it's a
+# symlink to ${bindir}/esmtp which is meaningless for sysroot, so
+# remove it.
+SYSROOT_PREPROCESS_FUNCS += "remove_sysroot_sendmail"
+remove_sysroot_sendmail() {
+    rm -r "${SYSROOT_DESTDIR}${libdir}/sendmail"
+}
