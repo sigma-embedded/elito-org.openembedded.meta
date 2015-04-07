@@ -22,7 +22,9 @@ S = "${WORKDIR}/PyQt-x11-gpl-${PV}"
 
 PARALLEL_MAKE = ""
 
-inherit qmake2 pythonnative python-dir
+inherit qmake2 pythonnative python-dir distro_features_check
+# depends on qt4-x11-free
+REQUIRED_DISTRO_FEATURES = "x11"
 
 DISABLED_FEATURES = "PyQt_Desktop_OpenGL PyQt_Accessibility PyQt_SessionManager"
 
@@ -47,7 +49,7 @@ do_install() {
      oe_runmake install
 }
 
-RDEPENDS_${PN} = "python-core"
+RDEPENDS_${PN} = "python-core python-sip"
 
 FILES_${PN} += "${libdir}/${PYTHON_DIR}/site-packages ${datadir}/sip/PyQt4/"
 FILES_${PN}-dbg += "${libdir}/${PYTHON_DIR}/site-packages/*/.debug/"

@@ -3,17 +3,21 @@ SECTION = "multimedia"
 HOMEPAGE = "http://www.mplayerhq.hu/"
 DEPENDS = "libvpx libdvdread libtheora virtual/libsdl ffmpeg xsp zlib \
            libpng jpeg liba52 freetype fontconfig alsa-lib lzo ncurses \
-           libxv virtual/libx11 libass speex faad2"
+           libxv virtual/libx11 libass speex faad2 libxscrnsaver"
 
 RDEPENDS_${PN} = "mplayer-common"
 PROVIDES = "mplayer"
 RPROVIDES_${PN} = "mplayer"
 RCONFLICTS_${PN} = "mplayer"
 
+# Depends on xsp, libxv, virtual/libx11, libxscrnsaver
+REQUIRED_DISTRO_FEATURES = "x11"
+
+# because it depends on libpostproc/libav which has commercial flag
+LICENSE_FLAGS = "${@base_contains('PACKAGECONFIG', 'postproc', 'commercial', '', d)}"
+
 LICENSE = "GPLv3"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=d32239bcb673463ab874e80d47fae504"
-
-PNBLACKLIST[mplayer2] ?= "Requires newer libav which has negative D_P"
 
 SRC_URI = "git://repo.or.cz/mplayer.git \
     file://0001-configure-don-t-disable-ASS-support-when-explicitly-.patch \
@@ -109,9 +113,14 @@ EXTRA_OECONF = " \
 EXTRA_OECONF_append_armv6 = " --enable-armv6"
 EXTRA_OECONF_append_armv7a = " --enable-armv6 --enable-neon"
 
+PACKAGECONFIG ??= "vorbis postproc"
 PACKAGECONFIG[mad] = "--enable-mad,--disable-mad,libmad"
 PACKAGECONFIG[a52] = "--enable-liba52,--disable-liba52,liba52"
 PACKAGECONFIG[lame] = ",,lame"
+PACKAGECONFIG[postproc] = ",--disable-libpostproc,libpostproc"
+PACKAGECONFIG[vorbis] = ",--disable-libvorbis,libvorbis"
+PACKAGECONFIG[portaudio] = ",--disable-portaudio,portaudio-v19"
+PACKAGECONFIG[mpg123] = ",--disable-mpg123,mpg123"
 
 FULL_OPTIMIZATION = "-fexpensive-optimizations -fomit-frame-pointer -frename-registers -O4 -ffast-math"
 BUILD_OPTIMIZATION = "${FULL_OPTIMIZATION}"

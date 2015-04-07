@@ -38,7 +38,7 @@ EXTRA_OECONF += "--enable-cached-man-pages"
 # first line is default yes in configure
 PACKAGECONFIG ??= " \
     zlib rsyslogd rsyslogrt klog inet regexp uuid libgcrypt \
-    imdiag gnutls \
+    imdiag gnutls imfile \
     ${@base_contains('DISTRO_FEATURES', 'snmp', 'snmp', '', d)} \
     ${@base_contains('DISTRO_FEATURES', 'systemd', 'systemd', '', d)} \
     ${@base_contains('DISTRO_FEATURES', 'ptest', 'testbench ${VALGRIND}', '', d)} \
@@ -58,6 +58,7 @@ PACKAGECONFIG[testbench] = "--enable-testbench,--disable-testbench,,"
 # default no in configure
 PACKAGECONFIG[debug] = "--enable-debug,--disable-debug,,"
 PACKAGECONFIG[imdiag] = "--enable-imdiag,--disable-imdiag,,"
+PACKAGECONFIG[imfile] = "--enable-imfile,--disable-imfile,,"
 PACKAGECONFIG[snmp] = "--enable-snmp,--disable-snmp,net-snmp,"
 PACKAGECONFIG[gnutls] = "--enable-gnutls,--disable-gnutls,gnutls,"
 PACKAGECONFIG[systemd] = "--with-systemdsystemunitdir=${systemd_unitdir}/system/,--without-systemdsystemunitdir,systemd,"
@@ -126,10 +127,10 @@ INITSCRIPT_PARAMS = "defaults"
 # higher than sysklogd's 100
 ALTERNATIVE_PRIORITY = "110"
 
-ALTERNATIVE_${PN} = "rsyslogd syslog-conf syslog-logrotate"
+ALTERNATIVE_${PN} = "syslogd syslog-conf syslog-logrotate"
 
-ALTERNATIVE_LINK_NAME[rsyslogd] = "${base_sbindir}/syslogd"
-ALTERNATIVE_TARGET[rsyslogd] = "${sbindir}/rsyslogd"
+ALTERNATIVE_LINK_NAME[syslogd] = "${base_sbindir}/syslogd"
+ALTERNATIVE_TARGET[syslogd] = "${sbindir}/rsyslogd"
 ALTERNATIVE_LINK_NAME[syslog-conf] = "${sysconfdir}/syslog.conf"
 ALTERNATIVE_TARGET[syslog-conf] = "${sysconfdir}/rsyslog.conf"
 ALTERNATIVE_LINK_NAME[syslog-logrotate] = "${sysconfdir}/logrotate.d/syslog"

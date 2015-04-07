@@ -31,6 +31,7 @@ RRECOMMENDS_${PN} = " \
     xfce4-places-plugin \
     xfce4-systemload-plugin \
     xfce4-time-out-plugin \
+    xfce4-timer-plugin \
     xfce4-embed-plugin \
     xfce4-weather-plugin \
     xfce4-fsguard-plugin \
@@ -42,6 +43,7 @@ RRECOMMENDS_${PN} = " \
     xfce4-notes-plugin \
     xfce4-whiskermenu-plugin \
     xfce4-mailwatch-plugin \
+    xfce4-kbdleds-plugin \
     \
     thunar-media-tags-plugin \
     thunar-archive-plugin \

@@ -2,7 +2,14 @@ SECTION = "console/network"
 LICENSE = "GPL-3.0"
 DEPENDS = "readline virtual/libiconv zlib popt"
 
-SRC_URI = "http://samba.org/samba/ftp/stable/samba-${PV}.tar.gz \
+SAMBA_MIRROR = "http://samba.org/samba/ftp"
+
+MIRRORS += "\
+${SAMBA_MIRROR}    http://mirror.internode.on.net/pub/samba \n \
+${SAMBA_MIRROR}    http://www.mirrorservice.org/sites/ftp.samba.org \n \
+"
+
+SRC_URI = "${SAMBA_MIRROR}/stable/samba-${PV}.tar.gz \
            file://volatiles.03_samba \
            file://smb.conf \
            file://init.samba \
@@ -20,6 +27,8 @@ inherit autotools-brokensep update-rc.d systemd
 SYSTEMD_PACKAGES = "${PN} winbind"
 SYSTEMD_SERVICE_${PN} = "nmb.service smb.service"
 SYSTEMD_SERVICE_winbind = "winbind.service"
+SYSTEMD_AUTO_ENABLE_${PN} = "disable"
+SYSTEMD_AUTO_ENABLE_winbind = "disable"
 
 SAMBAMMAP = "no"
 SAMBAMMAP_libc-glibc = "yes"

@@ -128,6 +128,7 @@ pkg_postinst_${PN}-server () {
 
     mysql_install_db --basedir=${prefix} --user=mysql
 
+    [ -x /sbin/restorecon ] && /sbin/restorecon -RF /var/lib/mysql
 }
 
 PACKAGES = "${PN}-dbg ${PN} \
@@ -147,7 +148,8 @@ RDEPENDS_${PN}-client = "perl perl-module-getopt-long perl-module-file-temp \
     perl-module-exporter"
 RDEPENDS_${PN}-server = "perl perl-module-getopt-long perl-module-data-dumper \
     perl-module-file-basename perl-module-file-path perl-module-sys-hostname \
-    perl-module-file-copy perl-module-file-temp perl-module-posix"
+    perl-module-file-copy perl-module-file-temp perl-module-posix \
+    ${PN}-client"
 RDEPENDS_${PN}-leftovers = "perl perl-module-cwd perl-module-benchmark perl-module-getopt-long \
     perl-module-posix perl-module-data-dumper perl-module-sigtrap perl-module-threads \
     perl-module-threads-shared perl-module-io-socket perl-module-sys-hostname perl-module-file-copy \
