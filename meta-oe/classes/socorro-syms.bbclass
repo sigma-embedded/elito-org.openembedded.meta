@@ -42,7 +42,7 @@ python symbol_file_preprocess() {
     breakpad_sym_file_path = os.path.join(breakpad_syms_dir, sym_file_name)
     socorro_sym_file_path = os.path.join(socorro_syms_dir, sym_file_name)
 
-    create_socorro_sym_file(breakpad_sym_file_path, socorro_sym_file_path)
+    create_socorro_sym_file(d, breakpad_sym_file_path, socorro_sym_file_path)
 
     arrange_socorro_sym_file(socorro_sym_file_path, socorro_syms_dir)
 
@@ -50,7 +50,16 @@ python symbol_file_preprocess() {
 }
 
 
-def create_socorro_sym_file(breakpad_sym_file_path, socorro_sym_file_path):
+def run_command(command, directory):
+
+    (output, error) = bb.process.run(command, cwd=directory)
+    if error:
+        raise bb.process.ExecutionError(command, error)
+
+    return output.rstrip()
+
+
+def create_socorro_sym_file(d, breakpad_sym_file_path, socorro_sym_file_path):
 
     # In the symbol file, all source files are referenced like the following.
     # FILE 123 /path/to/some/File.cpp
@@ -61,18 +70,19 @@ def create_socorro_sym_file(breakpad_sym_file_path, socorro_sym_file_path):
 
         for line in breakpad_sym_file:
             if line.startswith("FILE "):
-                socorro_sym_file.write(socorro_file_reference(line))
+                socorro_sym_file.write(socorro_file_reference(d, line))
             else:
                 socorro_sym_file.write(line)
 
     return
 
 
-def socorro_file_reference(line):
+def socorro_file_reference(d, line):
 
     # The 3rd position is the file path. See example above.
     source_file_path = line.split()[2]
-    source_file_repo_path = repository_path(os.path.normpath(source_file_path))
+    source_file_repo_path = repository_path(
+        d, os.path.normpath(source_file_path))
 
     # If the file could be found in any repository then replace it with the
     # repository's path.
@@ -82,7 +92,7 @@ def socorro_file_reference(line):
     return line
 
 
-def repository_path(source_file_path):
+def repository_path(d, source_file_path):
 
     if not os.path.isfile(source_file_path):
         return None
@@ -91,6 +101,14 @@ def repository_path(source_file_path):
     (output, error) = bb.process.run("git status",
         cwd=os.path.dirname(source_file_path))
     if not error:
+        # Make sure the git repository we just found wasn't the yocto repository
+        # itself, i.e. the root of the repository we're looking for must be a
+        # child of the build directory TOPDIR.
+        git_root_dir = run_command(
+            "git rev-parse --show-toplevel", os.path.dirname(source_file_path))
+        if not git_root_dir.startswith(d.getVar("TOPDIR", True)):
+            return None
+
         return git_repository_path(source_file_path)
 
     # Here we can add support for other VCSs like hg, svn, cvs, etc.
@@ -99,13 +117,10 @@ def repository_path(source_file_path):
     return None
 
 
-def run_command(command, directory):
+def is_local_url(url):
 
-    (output, error) = bb.process.run(command, cwd=directory)
-    if error:
-        raise bb.process.ExecutionError(command, error)
-
-    return output.rstrip()
+    return \
+        url.startswith("file:") or url.startswith("/") or url.startswith("./")
 
 
 def git_repository_path(source_file_path):
@@ -125,23 +140,27 @@ def git_repository_path(source_file_path):
 
     # The URL could be a local download directory. If so, get the URL again
     # using the local directory's config file.
-    if os.path.isdir(source_long_url):
+    if is_local_url(source_long_url):
         git_config_file = os.path.join(source_long_url, "config")
         source_long_url = run_command(
             "git config --file %s --get remote.origin.url" % git_config_file,
             source_file_dir)
+
+        # If also the download directory redirects to a local git directory,
+        # then we're probably using source code from a local debug branch which
+        # won't be accessible by Socorro.
+        if is_local_url(source_long_url):
+            return None
 
     # The URL can have several formats. A full list can be found using
     # git help clone. Extract the server part with a regex.
     url_match = re.search(".*(://|@)([^:/]*).*", source_long_url)
     source_server = url_match.group(2)
 
-    # (2) Get the branch for this file. If it's detached and just shows HEAD
-    # then set it to master and hope we can get the correct revision from there.
-    source_branch = run_command(
-        "git rev-parse --abbrev-ref HEAD", source_file_dir)
-    if source_branch == "HEAD":
-        source_branch = "master"
+    # (2) Get the branch for this file.
+    source_branch_list = run_command("git show-branch --list", source_file_dir)
+    source_branch_match = re.search(".*?\[(.*?)\].*", source_branch_list)
+    source_branch = source_branch_match.group(1)
 
     # (3) Since the repo root directory name can be changed without affecting
     # git, we need to extract the name from something more reliable.
