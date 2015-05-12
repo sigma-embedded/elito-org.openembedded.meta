@@ -1,6 +1,7 @@
 SUMMARY = "PC/SC Lite smart card framework and applications"
 HOMEPAGE = "http://pcsclite.alioth.debian.org/"
-LICENSE = "BSD"
+LICENSE = "BSD & GPLv3+"
+LICENSE_${PN}-dev = "GPLv3+"
 LIC_FILES_CHKSUM = "file://COPYING;md5=a39d325b7d9cf2f07826a5154b16500c"
 DEPENDS = "udev"
 
@@ -30,3 +31,4 @@ RPROVIDES_${PN} += "${PN}-systemd"
 RREPLACES_${PN} += "${PN}-systemd"
 RCONFLICTS_${PN} += "${PN}-systemd"
 SYSTEMD_SERVICE_${PN} = "pcscd.socket"
+RDEPENDS_${PN} +="python"
