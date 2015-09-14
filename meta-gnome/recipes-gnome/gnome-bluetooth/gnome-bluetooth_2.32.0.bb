@@ -7,18 +7,19 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=eb723b61539feef013de476e68b5c50a \
 PR = "r1"
 
 SECTION = "x11/gnome"
-DEPENDS = "obexd gnome-doc-utils-native gnome-doc-utils gconf gtk+ dbus-glib libunique libnotify bluez4 gnome-keyring virtual/libx11 libxi intltool-native"
-
-PNBLACKLIST[gnome-bluetooth] ?= "${@bb.utils.contains('DISTRO_FEATURES', 'bluez5', 'bluez5 conflicts with bluez4 and bluez5 is selected in DISTRO_FEATURES', '', d)}"
+DEPENDS = "obexd gnome-doc-utils-native gnome-doc-utils gconf gtk+ dbus-glib libunique libnotify gnome-keyring virtual/libx11 libxi intltool-native"
+DEPENDS += "${@bb.utils.contains('DISTRO_FEATURES','bluez5','bluez5','bluez4',d)}"
 
 inherit gnomebase gtk-icon-cache
 
 SRC_URI += " \
     file://0001-bluetooth-input-Fix-compile-errors.patch \
     file://0002-bluetooth-client-use-valid-interface-names.patch \
+    file://0003-Fix-build-with-libnotify-0.7.0.patch \
 "
 SRC_URI[archive.md5sum] = "f129686fe46c4c98eb70a0cc85d59cae"
 SRC_URI[archive.sha256sum] = "57b1f06c96a1b85e1c19ff919d708cc38e95edae658881ed99968c325839a973"
+GNOME_COMPRESS_TYPE="bz2"
 
 # No 'nautilus-sendto' recipe in meta-gnome yet
 EXTRA_OECONF += "--enable-nautilus-sendto=no"

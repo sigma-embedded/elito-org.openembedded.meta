@@ -4,14 +4,11 @@ DEPENDS = "udev"
 LICENSE = "GPLv2 & LGPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=94d55d512a9ba36caa9b7df079bae19f \
                     file://COPYING.LIB;md5=fbc093901857fcd118f065f900982c24"
-INC_PR = "r4"
-
 
 S = "${WORKDIR}/LVM2.${PV}"
 SRC_URI = "ftp://sources.redhat.com/pub/lvm2/old/LVM2.${PV}.tgz \
-           file://0001-Replace-CPPFunction-with-rl_completion_func_t.patch \
-           file://mlock-ignore-vectors-gate_vma.patch \
-           file://lvm.conf"
+           file://lvm.conf \
+          "
 
 PACKAGECONFIG ??= "readline"
 PACKAGECONFIG[readline] = "--enable-readline,--disable-readline,readline"
@@ -27,6 +24,7 @@ EXTRA_OECONF = "--with-user= \
                 --enable-udev_rules \
                 --enable-pkgconfig \
                 --enable-dmeventd \
+                --enable-lvmetad \
                 --with-udev-prefix= \
                 --with-usrlibdir=${libdir} \
 "
@@ -35,12 +33,20 @@ PACKAGECONFIG += "${@base_contains('DISTRO_FEATURES', 'selinux', 'selinux', '', 
 
 PACKAGECONFIG[selinux] = "--enable-selinux,--disable-selinux,libselinux,"
 
-inherit autotools pkgconfig
+inherit autotools pkgconfig systemd
 
 do_install_append() {
     # Install machine specific configuration file
     install -m 0644 ${WORKDIR}/lvm.conf ${D}${sysconfdir}/lvm/lvm.conf
+    sed -i -e 's:@libdir@:${libdir}:g' ${D}${sysconfdir}/lvm/lvm.conf
+    oe_runmake 'DESTDIR=${D}' install install_systemd_units
+    sed -i -e 's:/usr/bin/true:${base_bindir}/true:g' ${D}${systemd_unitdir}/system/blk-availability.service
 }
+
+SYSTEMD_PACKAGES = "${PN}"
+SYSTEMD_SERVICE_${PN} = "lvm2-monitor.service dm-event.socket dm-event.service lvm2-lvmetad.socket \
+                         lvm2-pvscan@.service blk-availability.service"
+SYSTEMD_AUTO_ENABLE = "disable"
 
 TARGET_CC_ARCH += "${LDFLAGS}"
 

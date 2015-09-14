@@ -4,17 +4,18 @@ SECTION = "libs"
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=751419260aa954499f7abaabaa882bbe"
 
-SRC_URI = "http://mirror.stshosting.co.uk/mariadb/mariadb-${PV}/source/mariadb-${PV}.tar.gz \
+SRC_URI = "http://archive.mariadb.org/mariadb-${PV}/source/mariadb-${PV}.tar.gz \
            file://fix-cmake-module-path.patch \
            file://remove-bad-path.patch \
            file://fix-mysqlclient-r-version.patch \
            file://my.cnf \
            file://mysqld.service \
            file://configure.cmake-fix-valgrind.patch \
+           file://fix-a-building-failure.patch \
           "
 
-SRC_URI[md5sum] = "d2415efc6a6d73d7a58f3c79bb42f2e8"
-SRC_URI[sha256sum] = "a16dc62e4bcabecd5c483f2f8b657483a8c51934e7be5ad4ab21b8baea1f5332"
+SRC_URI[md5sum] = "6ec397f717f6e2e4e9154e76de9ec9fc"
+SRC_URI[sha256sum] = "4dc3aff6941ef1068412002915d795bcf67db0eaa38a5c6f3af57474c4226fb0"
 
 S = "${WORKDIR}/mariadb-${PV}"
 
@@ -39,8 +40,9 @@ EXTRA_OEMAKE = "'GEN_LEX_HASH=${STAGING_BINDIR_NATIVE}/gen_lex_hash'"
 PACKAGECONFIG ??= "${@bb.utils.contains('DISTRO_FEATURES', 'pam', 'pam', '', d)}"
 PACKAGECONFIG_class-native = ""
 PACKAGECONFIG[pam] = ",-DWITHOUT_AUTH_PAM=TRUE,libpam"
-PACKAGECONFIG[valgrind] = "-DWITH_VALGRIND=TRUE,-DWITHOUT_VALGRIND=TRUE,valgrind"
+PACKAGECONFIG[valgrind] = "-DWITH_VALGRIND=TRUE,-DWITH_VALGRIND=FALSE,valgrind"
 PACKAGECONFIG[libedit] = "-DLIBEDIT_INTERFACE=TRUE,-DLIBEDIT_INTERFACE=FALSE,libedit"
+PACKAGECONFIG[krb5] = ", ,krb5"
 
 # MariaDB doesn't link properly with gold
 # https://mariadb.atlassian.net/browse/MDEV-5982
@@ -83,6 +85,16 @@ do_compile_prepend_class-target () {
     # and since we're cross-compiling that is disabled
     cp ${STAGING_BINDIR_NATIVE}/comp_err ${S}/extra
     cp ${STAGING_BINDIR_NATIVE}/comp_sql ${S}/scripts
+
+    if [ "${@bb.utils.contains('PACKAGECONFIG', 'krb5', 'yes', 'no', d)}" = "no" ]; then
+        if ! [ -e ${B}/include/openssl/kssl.h ] ; then
+            mkdir -p ${B}/include/openssl
+            echo "#ifndef KSSL_H" >${B}/include/openssl/kssl.h
+            echo "#define KSSL_H" >>${B}/include/openssl/kssl.h
+            echo "#include <openssl/opensslconf.h>">>${B}/include/openssl/kssl.h
+            echo "#endif" >>${B}/include/openssl/kssl.h
+        fi
+    fi
 }
 
 SYSROOT_PREPROCESS_FUNCS += "mariadb_sysroot_preprocess"
@@ -173,7 +185,7 @@ FILES_libmysqlclient-dbg = "${libdir}/plugin/.debug/ \
 # Avoid warnings about ha_xtradb.so.0.0.0 and ha_innodb_plugin.so.0.0.0
 # which are intentionally non-PIC on 32-bit x86 (see e.g.
 # storage/xtradb/plug.in in the source)
-INSANE_SKIP_libmysqlclient_append_i586 = " textrel"
+INSANE_SKIP_libmysqlclient_append_x86 = " textrel"
 
 FILES_libmysqlclient-r = "${libdir}/libmysqlclient_r.so.*"
 FILES_libmysqlclient-r-dev = "\

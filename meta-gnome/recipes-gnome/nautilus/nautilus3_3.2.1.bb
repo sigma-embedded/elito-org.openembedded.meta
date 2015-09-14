@@ -8,11 +8,8 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=f08a446809913fc9b3c718f0eaea0426 \
 
 PR = "r4"
 
-DEPENDS = "libnotify3 gtk+3 libunique gvfs librsvg libexif gnome-desktop3"
+DEPENDS = "libnotify gtk+3 libunique gvfs librsvg libexif gnome-desktop3"
 # optional: tracker
-
-# needs libnotify3 which conflicts with libnotify, mixing them in build breaks couple of packages
-EXCLUDE_FROM_WORLD = "1"
 
 # to include nautilus3/no-try-run-strftime.diff before the rest
 FILESEXTRAPATHS_prepend := "${THISDIR}/${BPN}:"
@@ -20,8 +17,8 @@ BPN = "nautilus"
 inherit gnome
 
 SRC_URI += "file://no-try-run-strftime.diff"
-SRC_URI[archive.md5sum] = "ecd100ed94431363fa68b217351649c0"
-SRC_URI[archive.sha256sum] = "584e97d3eb093ee16a779809b679150a636bcd4a3767fb604993013b523d2df1"
+SRC_URI[archive.md5sum] = "12314328b59aa1dfd83619f718b81bd5"
+SRC_URI[archive.sha256sum] = "c482d6e7babcc238304cf55586cdf7e2b2806025214a143ed355f0d89b33b154"
 
 EXTRA_OECONF = " --disable-gtk-doc  --disable-update-mimedb --enable-nst-extension"
 export SYSROOT = "${STAGING_DIR_HOST}"

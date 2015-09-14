@@ -1,8 +1,8 @@
 SUMMARY = "Opencv : The Open Computer Vision Library"
-HOMEPAGE = "http://opencv.willowgarage.com/wiki/"
+HOMEPAGE = "http://opencv.org/"
 SECTION = "libs"
 
-LICENSE = "BSD"
+LICENSE = "BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://include/opencv2/opencv.hpp;endline=41;md5=6d690d8488a6fca7a2c192932466bb14"
 
 ARM_INSTRUCTION_SET = "arm"
@@ -31,7 +31,7 @@ EXTRA_OECMAKE = "-DPYTHON_NUMPY_INCLUDE_DIR:PATH=${STAGING_LIBDIR}/${PYTHON_DIR}
 
 PACKAGECONFIG ??= "eigen jpeg png tiff \
                    ${@bb.utils.contains('LICENSE_FLAGS_WHITELIST', 'commercial', 'libav', '', d)} \
-                   ${@bb.utils.contains('DISTRO_DERIVED_FEATURES', 'v4l', 'v4l', '', d) \
+                   ${@bb.utils.contains('DISTRO_DERIVED_FEATURES', 'v4l', 'v4l libv4l', '', d) \
                    ${@bb.utils.contains('DISTRO_DERIVED_FEATURES', 'gtk-supported', 'gtk', '', d)"
 
 PACKAGECONFIG[eigen] = "-DWITH_EIGEN=ON,-DWITH_EIGEN=OFF,libeigen,"
@@ -41,6 +41,7 @@ PACKAGECONFIG[libav] = "-DWITH_FFMPEG=ON,-DWITH_FFMPEG=OFF,libav,"
 PACKAGECONFIG[png] = "-DWITH_PNG=ON,-DWITH_PNG=OFF,libpng,"
 PACKAGECONFIG[tiff] = "-DWITH_TIFF=ON,-DWITH_TIFF=OFF,tiff,"
 PACKAGECONFIG[v4l] = "-DWITH_V4L=ON,-DWITH_V4L=OFF,v4l-utils,"
+PACKAGECONFIG[libv4l] = "-DWITH_LIBV4L=ON,-DWITH_LIBV4L=OFF,v4l-utils,"
 PACKAGECONFIG[jasper] = "-DWITH_JASPER=ON,-DWITH_JASPER=OFF,jasper,"
 PACKAGECONFIG[gstreamer] = "-DWITH_GSTREAMER=ON,-DWITH_GSTREAMER=OFF,gstreamer,"
 
@@ -85,7 +86,6 @@ FILES_${PN}-doc = "${datadir}/OpenCV/doc"
 
 ALLOW_EMPTY_${PN} = "1"
 
-INSANE_SKIP_python-opencv = "True"
 SUMMARY_python-opencv = "Python bindings to opencv"
 FILES_python-opencv = "${PYTHON_SITEPACKAGES_DIR}/*"
 RDEPENDS_python-opencv = "python-core python-numpy"

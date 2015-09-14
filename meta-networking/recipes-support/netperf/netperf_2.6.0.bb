@@ -1,12 +1,12 @@
 SUMMARY = "A networking benchmarking tool"
 DESCRIPTION = "Network performance benchmark including tests for TCP, UDP, sockets, ATM and more."
-SECTION = "console/network"
+SECTION = "net"
 HOMEPAGE = "http://www.netperf.org/"
 LICENSE = "netperf"
 LICENSE_FLAGS = "non-commercial"
 
 
-SRC_URI="ftp://ftp.netperf.org/netperf/netperf-${PV}.tar.bz2 \
+SRC_URI="ftp://ftp.netperf.org/netperf/archive/netperf-${PV}.tar.bz2 \
          file://cpu_set.patch \
          file://vfork.patch \
          file://init"

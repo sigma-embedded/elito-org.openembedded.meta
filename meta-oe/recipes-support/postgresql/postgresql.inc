@@ -31,13 +31,6 @@ SRC_URI = "http://ftp.postgresql.org/pub/source/v${PV}/${BP}.tar.bz2 \
            file://postgresql-setup \
            file://postgresql.service \
            file://0001-Use-pkg-config-for-libxml2-detection.patch \
-           file://0002-Predict-integer-overflow-to-avoid-buffer-overruns.patch \
-           file://0003-Shore-up-ADMIN-OPTION-restrictions.patch \
-           file://0004-Prevent-privilege-escalation-in-explicit-calls-to-PL.patch \
-           file://0005-Avoid-repeated-name-lookups-during-table-and-index-D.patch \
-           file://0006-Fix-handling-of-wide-datetime-input-output.patch \
-           file://0007-Make-pqsignal-available-to-pg_regress-of-ECPG-and-is.patch \
-           file://0008-Prevent-potential-overruns-of-fixed-size-buffers.patch \
           "
 
 LEAD_SONAME = "libpq.so"
@@ -76,7 +69,6 @@ PACKAGECONFIG[perl] = "--with-perl,--without-perl,perl,perl"
 EXTRA_OECONF += "--enable-thread-safety --disable-rpath \
                  --datadir=${datadir}/${BPN} \
                  --sysconfdir=${sysconfdir}/${BPN} \
-                 --without-krb5 \
 "
 EXTRA_OECONF_sh4 += "--disable-spinlocks"
 EXTRA_OECONF_aarch64 += "--disable-spinlocks"
@@ -92,14 +84,14 @@ python populate_packages_prepend() {
         if name is None or name.strip() == "":
             return
 
-        fpack=d.getVar('PACKAGES') or ""
+        fpack=d.getVar('PACKAGES', False) or ""
         fpack="${PN}-" + name + " " + fpack
         if dbg:
             fpack="${PN}-" + name + "-dbg" + " " + fpack
         d.setVar('PACKAGES', fpack)
 
     conf=(d.getVar('PACKAGECONFIG', True) or "").split()
-    pack=d.getVar('PACKAGES') or ""
+    pack=d.getVar('PACKAGES', False) or ""
     bb.debug(1, "PACKAGECONFIG=%s" % conf)
     bb.debug(1, "PACKAGES1=%s" % pack )
 

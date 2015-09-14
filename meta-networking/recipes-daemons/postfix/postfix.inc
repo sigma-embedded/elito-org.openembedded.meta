@@ -5,12 +5,12 @@ Postfix attempts to be fast, easy to administer, and secure. The outsidei \
 has a definite Sendmail-ish flavor, but the inside is completely different."
 
 HOMEPAGE= "http://www.postfix.org"
-SECTION = "console/network"
+SECTION = "mail"
 DEPENDS = "virtual/db libpcre openssl postfix-native \
     ${@base_contains('DISTRO_FEATURES', 'ldap', 'openldap', '', d)} \
     ${@base_contains('DISTRO_FEATURES', 'sasl', 'cyrus-sasl', '', d)} \
 "
-DEPENDS_virtclass-native = "virtual/db-native openssl-native libpcre-native"
+DEPENDS_class-native = "virtual/db-native openssl-native libpcre-native"
 
 LICENSE = "IPL-1.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=64375f37431336ea1b1b3005fe3fa354"
@@ -54,8 +54,8 @@ export AUXLIBS-ldap = "\
     ${@base_contains('DISTRO_FEATURES', 'ldap', '-lldap -llber', '', d)}"
 
 # no native openldap
-export CCARGS-ldap_virtclass-native = ""
-export AUXLIBS-ldap_virtclass-native = ""
+export CCARGS-ldap_class-native = ""
+export AUXLIBS-ldap_class-native = ""
 
 # SASL support -DUSE_LDAP_SASL -DUSE_SASL_AUTH
 # current openldap didn't enable SASL
@@ -63,8 +63,8 @@ export CCARGS-sasl  = "\
     ${@base_contains('DISTRO_FEATURES', 'sasl', '-DUSE_SASL_AUTH -DUSE_CYRUS_SASL -I=/usr/include/sasl', '', d)}"
 export AUXLIBS-sasl = "\
     ${@base_contains('DISTRO_FEATURES', 'sasl', '-lsasl2', '', d)}"
-export CCARGS-sasl_virtclass-native = ""
-export AUXLIBS-sasl_virtclass-native = ""
+export CCARGS-sasl_class-native = ""
+export AUXLIBS-sasl_class-native = ""
 
 # PCRE, TLS support default
 export CCARGS  = "${CFLAGS} -DHAS_PCRE -DUSE_TLS ${CCARGS-ldap} ${CCARGS-sasl}"
@@ -119,7 +119,7 @@ do_compile () {
     oe_runmake
 }
 
-do_install_prepend_virtclass-native() {
+do_install_prepend_class-native() {
     export POSTCONF="bin/postconf"
 }
 
@@ -140,8 +140,11 @@ do_install () {
         -non-interactive
     rm -rf ${D}${localstatedir}/spool/postfix
     mv ${D}${sysconfdir}/postfix/main.cf ${D}${sysconfdir}/postfix/sample-main.cf
+    install -m 755 ${S}/bin/smtp-sink ${D}/${sbindir}/
     install -d ${D}${sysconfdir}/init.d
     install -m 644 ${WORKDIR}/main.cf_2.0 ${D}${sysconfdir}/postfix/main.cf
+    sed -i 's#@LIBEXECDIR@#${libexecdir}#' ${D}${sysconfdir}/postfix/main.cf
+
     install -m 755 ${WORKDIR}/postfix ${D}${sysconfdir}/init.d/postfix
     install -m 644 ${WORKDIR}/internal_recipient ${D}${sysconfdir}/postfix/internal_recipient
 
@@ -230,7 +233,7 @@ pkg_postinst_${PN} () {
         touch $D/etc/postfix/virtual_alias
         postmap -c $D/etc/postfix $D/etc/postfix/virtual_alias
 
-        if ${@'true' if 'linuxstdbase' in d.getVar('DISTROOVERRIDES') else 'false'}; then
+        if ${@'true' if 'linuxstdbase' in d.getVar('DISTROOVERRIDES', False) else 'false'}; then
             # /usr/lib/sendmial is required by LSB core test
             [ ! -L $D/usr/lib/sendmail ] && ln -sf ${sbindir}/sendmail $D/usr/lib/
         fi
