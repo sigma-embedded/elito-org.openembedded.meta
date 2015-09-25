@@ -13,11 +13,8 @@ SRC_URI = "git://git.kernel.org/pub/scm/boot/dracut/dracut.git"
 
 S = "${WORKDIR}/git"
 
-inherit distro_features_check
-REQUIRED_DISTRO_FEATURES = "systemd"
-
 EXTRA_OECONF = "--prefix=${prefix} \
-                --libdir=${libdir} \
+                --libdir=${prefix}/lib \
                 --datadir=${datadir} \
                 --sysconfdir=${sysconfdir} \
                 --sbindir=${sbindir} \
@@ -25,7 +22,13 @@ EXTRA_OECONF = "--prefix=${prefix} \
                 --bindir=${bindir} \
                 --includedir=${includedir} \
                 --localstatedir=${localstatedir} \
-                --systemdsystemunitdir=${systemd_unitdir}/system"
+               "
+
+# RDEPEND on systemd optionally
+PACKAGECONFIG ??= "${@base_contains('DISTRO_FEATURES', 'systemd', 'systemd', '', d)}"
+PACKAGECONFIG[systemd] = "--with-systemdsystemunitdir=${systemd_unitdir}/system/,,,systemd"
+
+EXTRA_OEMAKE += 'libdir=${prefix}/lib'
 
 do_configure() {
     ./configure ${EXTRA_OECONF}
@@ -39,12 +42,15 @@ PACKAGES =+ "${PN}-bash-completion"
 
 FILES_${PN}-bash-completion = "${datadir}/bash-completion"
 
-FILES_${PN} += " ${libdir}/kernel \
+FILES_${PN} += "${prefix}/lib/kernel \
+                ${prefix}/lib/dracut \
                 ${systemd_unitdir} \
                "
+FILES_${PN}-dbg += "${prefix}/lib/dracut/.debug"
+
 CONFFILES_${PN} += "${sysconfdir}/dracut.conf"
 
-RDEPENDS_${PN} = "systemd findutils cpio util-linux-blkid util-linux-getopt bash ldd"
+RDEPENDS_${PN} = "findutils cpio util-linux-blkid util-linux-getopt bash ldd"
 RDEPENDS_${PN}-bash-completion = "bash-completion"
 
 # This could be optimized a bit, but let's avoid non-booting systems :)

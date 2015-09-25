@@ -25,6 +25,7 @@ SYSTEMD_SERVICE_${PN} = "collectd.service"
 FPLAYOUT ?= "--with-fp-layout=nothing"
 
 PACKAGECONFIG ??= ""
+PACKAGECONFIG[openjdk] = "--with-java=${STAGING_DIR_TARGET}${libdir}/jvm,--without-java,openjdk-7"
 PACKAGECONFIG[snmp] = "--enable-snmp,--disable-snmp --with-libnetsnmp=no,net-snmp"
 PACKAGECONFIG[libmemcached] = "--with-libmemcached,--without-libmemcached,libmemcached"
 PACKAGECONFIG[iptables] = "--enable-iptables,--disable-iptables,iptables"
@@ -45,6 +46,7 @@ PACKAGECONFIG[libvirt] = "--enable-libvirt,--disable-libvirt,libvirt"
 PACKAGECONFIG[libesmtp] = "--with-libesmtp,--without-libesmtp,libesmtp"
 PACKAGECONFIG[libmnl] = "--with-libmnl,--without-libmnl,libmnl"
 PACKAGECONFIG[libatasmart] = "--with-libatasmart,--without-libatasmart,libatasmart"
+PACKAGECONFIG[ldap] = "--enable-openldap --with-libldap,--disable-openldap --without-libldap, openldap"
 
 EXTRA_OECONF = " \
                 ${FPLAYOUT} \
