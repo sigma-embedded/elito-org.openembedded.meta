@@ -80,7 +80,10 @@ do_install() {
     install -d ${D}${localstatedir}/webmin
 
     install -d ${D}${libexecdir}/webmin
-    cp -pPR ${S}/* ${D}${libexecdir}/webmin
+    cd ${S} || exit 1
+    tar --no-same-owner --exclude='./patches' --exclude='./.pc' -cpf - . \
+        | tar --no-same-owner -xpf - -C ${D}${libexecdir}/webmin
+
     rm -f ${D}${libexecdir}/webmin/webmin-init
     rm -f ${D}${libexecdir}/webmin/ajaxterm/ajaxterm/configure.initd.gentoo
     rm -rf ${D}${libexecdir}/webmin/patches
@@ -114,7 +117,7 @@ INITSCRIPT_PARAMS = "start 99 5 3 2 . stop 10 0 1 6 ."
 RDEPENDS_${PN} += "perl perl-module-socket perl-module-exporter perl-module-exporter-heavy perl-module-carp perl-module-strict"
 RDEPENDS_${PN} += "perl-module-warnings perl-module-xsloader perl-module-posix perl-module-autoloader"
 RDEPENDS_${PN} += "perl-module-fcntl perl-module-tie-hash perl-module-vars perl-module-time-local perl-module-config perl-module-constant"
-RDEPENDS_${PN} += "perl-module-file-glob perl-module-file-copy perl-module-sdbm perl-module-sdbm-file perl-module-feature"
+RDEPENDS_${PN} += "perl-module-file-glob perl-module-file-copy perl-module-sdbm-file perl-module-feature"
 
 PACKAGES_DYNAMIC += "webmin-module-* webmin-theme-*"
 RRECOMMENDS_${PN} += "webmin-module-system-status"

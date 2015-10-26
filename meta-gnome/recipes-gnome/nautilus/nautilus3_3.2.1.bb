@@ -24,7 +24,7 @@ EXTRA_OECONF = " --disable-gtk-doc  --disable-update-mimedb --enable-nst-extensi
 export SYSROOT = "${STAGING_DIR_HOST}"
 
 do_configure() {
-    sed -i -e /docs/d Makefile.am
+    sed -i -e /docs/d ${S}/Makefile.am
     autotools_do_configure
 }
 
@@ -48,3 +48,7 @@ fi
 
 glib-compile-schemas ${datadir}/glib-2.0/schemas
 }
+
+# 3.2.1-r4/nautilus-3.2.1/eel/eel-gnome-extensions.c:34:50: fatal error: libgnome-desktop/gnome-desktop-utils.h: No such file or directory
+# 3.2.1-r4/nautilus-3.2.1/eel/eel-editable-label.c:3105:55: error: 'GTK_STOCK_CUT' undeclared (first use in this function)
+PNBLACKLIST[nautilus3] ?= "BROKEN: fails to build, maybe missing dependency on gnome-desktop-utils.h provider"
