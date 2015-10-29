@@ -15,11 +15,15 @@ SRC_URI = "\
 
 S = "${WORKDIR}/git"
 
-inherit autotools-brokensep gettext pythonnative perlnative python-dir cpan-base
+inherit autotools-brokensep gettext pythonnative perlnative python-dir cpan-base systemd
+
+BBCLASSEXTEND = "native"
+
+SYSTEMD_SERVICE_${PN} = "rrdcached.socket rrdcached.service"
 
 EXTRA_AUTORECONF = "-I m4"
 
-PACKAGECONFIG ??= "python perl"
+PACKAGECONFIG ??= "python perl ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'systemd', '', d)}"
 
 PACKAGECONFIG[python] = "--enable-python=yes \
 am_cv_python_pythondir=${STAGING_LIBDIR}/python${PYTHON_BASEVERSION}/site-packages \
@@ -32,6 +36,8 @@ ac_cv_path_PERL_CC='${CC}',  \
 --disable-perl,perl,"
 
 PACKAGECONFIG[dbi] = "--enable-libdbi,--disable-libdbi,libdbi"
+
+PACKAGECONFIG[systemd] = "--with-systemdsystemunitdir=${systemd_unitdir}/system/,--without-systemdsystemunitdir,systemd,"
 
 EXTRA_OECONF = " \
     --enable-shared \
@@ -70,8 +76,8 @@ do_configure() {
     sed -i -e '/PYTHON_INCLUDES="-I${/c \
     PYTHON_INCLUDES="-I=/usr/include/python${PYTHON_BASEVERSION}"' \
         ${S}/m4/acinclude.m4
-    #remove the hardcoded $(libdir) rpath
-    sed -i -e 's|--rpath=$(libdir)||g' ${S}/bindings/Makefile.am
+    #remove the useless RPATH from the rrdtool.so
+    sed -i -e 's|LD_RUN_PATH=$(libdir)||g' ${S}/bindings/Makefile.am
 
     autotools_do_configure
 
@@ -102,19 +108,19 @@ do_configure() {
 
 PACKAGES =+ "${PN}-perl ${PN}-python"
 
-FILES_${PN}-doc += "${datadir}/examples"
+FILES_${PN}-doc += "${datadir}/rrdtool/examples"
 
 DESCRIPTION_${PN}-perl = \
 "The ${PN}-perl package includes RRDtool bindings for perl."
-FILES_${PN}-perl = "${libdir}/perl/vendor_perl/*/*.pm ${datadir}/rrdtool/examples \
+FILES_${PN}-perl = "${libdir}/perl/vendor_perl/*/*.pm \
     ${libdir}/perl/vendor_perl/*/auto/RRDs/RRDs.*"
 RDEPENDS_${PN}-perl = "perl perl-module-lib perl-module-getopt-long perl-module-time-hires \
     perl-module-io-file perl-module-ipc-open2 perl-module-io-socket"
 
 DESCRIPTION_${PN}-python = \
 "The ${PN}-python package includes RRDtool bindings for python."
-FILES_${PN}-python = "${libdir}/python${PYTHON_BASEVERSION}/site-packages/*"
+FILES_${PN}-python = "${nonarch_libdir}/python${PYTHON_BASEVERSION}/site-packages/*"
 RDEPENDS_${PN}-python = "python"
 
 FILES_${PN}-dbg += "${libdir}/perl/vendor_perl/*/auto/RRDs/.debug \
-    ${libdir}/python${PYTHON_BASEVERSION}/site-packages/.debug"
+    ${nonarch_libdir}/python${PYTHON_BASEVERSION}/site-packages/.debug"

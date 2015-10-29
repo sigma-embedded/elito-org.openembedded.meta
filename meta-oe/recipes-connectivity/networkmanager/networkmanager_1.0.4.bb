@@ -4,7 +4,7 @@ SECTION = "net/misc"
 LICENSE = "GPLv2+"
 LIC_FILES_CHKSUM = "file://COPYING;md5=cbbffd568227ada506640fe950a4823b"
 
-DEPENDS = "libnl dbus dbus-glib udev wireless-tools nss util-linux libndp"
+DEPENDS = "libnl dbus dbus-glib libgudev wireless-tools nss util-linux libndp"
 
 inherit gnome gettext systemd
 
@@ -84,3 +84,7 @@ FILES_${PN}-tests = " \
 FILES_${PN}-bash-completion = "${datadir}/bash-completion"
 
 SYSTEMD_SERVICE_${PN} = "NetworkManager.service"
+
+do_install_append() {
+    rm -rf ${D}/run ${D}${localstatedir}/run
+}
