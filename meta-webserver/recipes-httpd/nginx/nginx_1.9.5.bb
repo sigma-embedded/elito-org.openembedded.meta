@@ -27,6 +27,8 @@ inherit update-rc.d useradd
 CFLAGS_append = " -fPIE -pie"
 CXXFLAGS_append = " -fPIE -pie"
 
+EXTRA_OECONF = ""
+
 do_configure () {
 	if [ "${SITEINFO_BITS}" = "64" ]; then
 		PTRSIZE=8
@@ -55,7 +57,8 @@ do_configure () {
 	--pid-path=/run/nginx/nginx.pid \
 	--prefix=${prefix} \
 	--with-http_ssl_module \
-	--with-http_gzip_static_module
+	--with-http_gzip_static_module \
+	${EXTRA_OECONF}
 }
 
 do_install () {
@@ -91,6 +94,7 @@ do_install () {
             install -m 0644 ${WORKDIR}/nginx.service ${D}${systemd_unitdir}/system/
             sed -i -e 's,@SYSCONFDIR@,${sysconfdir},g' \
                     -e 's,@LOCALSTATEDIR@,${localstatedir},g' \
+                    -e 's,@BASEBINDIR@,${base_bindir},g' \
                     ${D}${systemd_unitdir}/system/nginx.service
         fi
 }

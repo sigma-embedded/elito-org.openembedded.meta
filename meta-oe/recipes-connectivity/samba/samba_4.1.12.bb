@@ -40,7 +40,7 @@ SRC_URI[sha256sum] = "033604674936bf5c77d7df299b0626052b84a41505a6a6afe902f6274f
 
 inherit systemd waf-samba
 
-DEPENDS += "readline virtual/libiconv zlib popt talloc libtdb libtevent libldb krb5 ctdb"
+DEPENDS += "readline virtual/libiconv zlib popt talloc libtdb libtevent libldb krb5 ctdb cups"
 RDEPENDS_${PN} += "openldap"
 
 PACKAGECONFIG = "${@base_contains('DISTRO_FEATURES', 'pam', 'pam', '', d)}"
@@ -63,7 +63,7 @@ EXTRA_OECONF += "--enable-fhs \
                  --with-piddir=${localstatedir}/run \
                  --with-sockets-dir=${localstatedir}/run/samba \
                  --with-modulesdir=${libdir}/samba \
-                 --with-pammodulesdir=${libdir}/security \
+                 --with-pammodulesdir=${base_libdir}/security \
                  --with-lockdir=${localstatedir}/lib/samba \
                  --with-cachedir=${localstatedir}/lib/samba \
                  --with-perl-lib-install-dir=${PERL_VERNDORLIB} \
@@ -97,6 +97,11 @@ do_install_append() {
 	install -d ${D}${sysconfdir}/tmpfiles.d
 	echo "d ${localstatedir}/log/samba 0755 root root -" \
             > ${D}${sysconfdir}/tmpfiles.d/99-${BPN}.conf
+    elif ${@bb.utils.contains('DISTRO_FEATURES', 'sysvinit', 'true', 'false', d)}; then
+	install -d ${D}${sysconfdir}/init.d
+	install -m 0755 packaging/LSB/samba.sh ${D}${sysconfdir}/init.d
+	update-rc.d -r ${D} samba.sh start 20 3 5 .
+	update-rc.d -r ${D} samba.sh start 20 0 1 6 .
     fi
 
     install -d ${D}${sysconfdir}/samba
@@ -113,12 +118,14 @@ do_install_append() {
 PACKAGES += "${PN}-python ${PN}-python-dbg ${PN}-pidl libwinbind libwinbind-dbg libwinbind-krb5-locator"
 
 FILES_${PN} += "/run \
-                ${libdir}/security/pam_smbpass.so \
+                ${base_libdir}/security/pam_smbpass.so \
                 ${libdir}/tmpfiles.d/* \
                "
 
 SMB_SERVICE="${systemd_unitdir}/system/nmb.service ${systemd_unitdir}/system/smb.service"
+SMB_SYSV="${sysconfdir}/init.d ${sysconfdir}/rc?.d"
 FILES_${PN} +="${@bb.utils.contains('DISTRO_FEATURES', 'systemd', '${SMB_SERVICE}', '', d)}"
+FILES_${PN} +="${@bb.utils.contains('DISTRO_FEATURES', 'sysvinit', '${SMB_SYSV}', '', d)}"
 
 FILES_${PN}-dbg += "${libdir}/samba/idmap/.debug/* \
                     ${libdir}/samba/pdb/.debug/* \
@@ -126,12 +133,12 @@ FILES_${PN}-dbg += "${libdir}/samba/idmap/.debug/* \
                     ${libdir}/samba/nss_info/.debug/* \
                     ${libdir}/samba/ldb/.debug/* \
                     ${libdir}/samba/vfs/.debug/* \
-                    ${libdir}/security/.debug/pam_smbpass.so \
+                    ${base_libdir}/security/.debug/pam_smbpass.so \
                    "
 
-FILES_libwinbind = "${libdir}/security/pam_winbind.so"
+FILES_libwinbind = "${base_libdir}/security/pam_winbind.so"
 FILES_libwinbind += "${@bb.utils.contains('DISTRO_FEATURES', 'systemd', '${systemd_unitdir}/system/winbind.service', '', d)}"
-FILES_libwinbind-dbg = "${libdir}/security/.debug/pam_winbind.so"
+FILES_libwinbind-dbg = "${base_libdir}/security/.debug/pam_winbind.so"
 FILES_libwinbind-krb5-locator = "${libdir}/winbind_krb5_locator.so"
 
 FILES_${PN}-python = "${libdir}/python${PYTHON_BASEVERSION}/site-packages/*.so \
