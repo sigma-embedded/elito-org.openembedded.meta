@@ -26,7 +26,7 @@ inherit autotools-brokensep pkgconfig systemd
 
 PARALLEL_MAKE = ""
 
-DEPENDS += "popt libtevent talloc"
+DEPENDS += "popt libtevent libtalloc libldb"
 
 do_configure() {
     oe_runconf
@@ -41,3 +41,6 @@ do_install_append() {
 SYSTEMD_SERVICE_${PN} = "ctdb.service"
 
 FILES_${PN} += "/run"
+
+# onnode is a shell script with bashisms and bash #!
+RDEPENDS_${PN} += "bash"
