@@ -34,6 +34,13 @@ SRC_URI = "${SAMBA_MIRROR}/stable/samba-${PV}.tar.gz \
            file://19-systemd-daemon-is-contained-by-libsystemd.patch \
            file://20-do-not-import-target-module-while-cross-compile.patch \
            file://21-add-config-option-without-valgrind.patch \
+           file://0001-waf-sanitize-and-fix-added-cross-answer.patch \
+           file://0002-Adds-a-new-mode-to-samba-cross-compiling.patch \
+           file://0003-waf-improve-readability-of-cross-answers-generated-b.patch \
+           file://0004-build-make-wafsamba-CHECK_SIZEOF-cross-compile-frien.patch \
+           file://0005-build-unify-and-fix-endian-tests.patch \
+           file://0006-avoid-using-colon-in-the-checking-msg.patch \
+           file://0007-waf-Fix-parsing-of-cross-answers-file-in-case-answer.patch \
           "
 
 SRC_URI[md5sum] = "232016d7581a1ba11e991ec2674553c4"
@@ -104,8 +111,12 @@ EXTRA_OECONF += "--enable-fhs \
 LDFLAGS += "-Wl,-z,relro,-z,now"
 
 do_install_append() {
-    rmdir --ignore-fail-on-non-empty "${D}/run/samba"
-    rmdir --ignore-fail-on-non-empty "${D}/run"
+    if [ -d "${D}/run" ]; then
+        if [ -d "${D}/run/samba" ]; then
+            rmdir --ignore-fail-on-non-empty "${D}/run/samba"
+        fi
+        rmdir --ignore-fail-on-non-empty "${D}/run"
+    fi
 
     if ${@bb.utils.contains('PACKAGECONFIG', 'systemd', 'true', 'false', d)}; then
         install -d ${D}${systemd_unitdir}/system
@@ -117,8 +128,9 @@ do_install_append() {
             -i ${D}${systemd_unitdir}/system/*.service
 
 	install -d ${D}${sysconfdir}/tmpfiles.d
-	echo "d ${localstatedir}/log/samba 0755 root root -" \
-            > ${D}${sysconfdir}/tmpfiles.d/99-${BPN}.conf
+        install -m644 packaging/systemd/samba.conf.tmp ${D}${sysconfdir}/tmpfiles.d/samba.conf
+        echo "d ${localstatedir}/log/samba 0755 root root -" \
+            >> ${D}${sysconfdir}/tmpfiles.d/samba.conf
     elif ${@bb.utils.contains('PACKAGECONFIG', 'lsb', 'true', 'false', d)}; then
 	install -d ${D}${sysconfdir}/init.d
 	install -m 0755 packaging/LSB/samba.sh ${D}${sysconfdir}/init.d
@@ -134,9 +146,6 @@ do_install_append() {
     install -d ${D}${sysconfdir}/samba
     echo "127.0.0.1 localhost" > ${D}${sysconfdir}/samba/lmhosts
     install -m644 packaging/LSB/smb.conf ${D}${sysconfdir}/samba/smb.conf
-
-    install -d ${D}${libdir}/tmpfiles.d
-    install -m644 packaging/systemd/samba.conf.tmp ${D}${libdir}/tmpfiles.d/samba.conf
 
     install -d ${D}${sysconfdir}/sysconfig/
     install -m644 packaging/systemd/samba.sysconfig ${D}${sysconfdir}/sysconfig/samba
@@ -281,7 +290,6 @@ FILES_libnss-winbind = "${libdir}/libnss_*${SOLIBS} \
 "
 
 FILES_${PN} += "${base_libdir}/security/pam_smbpass.so \
-                ${libdir}/tmpfiles.d/* \
 "
 
 SMB_SERVICE="${systemd_unitdir}/system/nmb.service ${systemd_unitdir}/system/smb.service"

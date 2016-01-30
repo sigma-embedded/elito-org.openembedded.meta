@@ -16,6 +16,7 @@ SRC_URI = "${SAVANNAH_GNU_MIRROR}/${BPN}/${BP}.tar.gz \
     file://0002-Add-a-test-for-C11-and-check-we-have-C11-before-usin.patch \
     file://0003-Whoops-check-for-C11-not-for-not-C11-in-stdatomic.h-.patch \
     file://0001-Include-stdatomic.h-only-in-C-mode.patch \
+    file://0001-libgpsd-core-Fix-issue-with-ACTIVATE-hook-not-being-.patch \
     file://gpsd-default \
     file://gpsd \
     file://60-gpsd.rules \
@@ -34,7 +35,7 @@ SYSTEMD_OESCONS = "${@base_contains('DISTRO_FEATURES', 'systemd', 'true', 'false
 export STAGING_INCDIR
 export STAGING_LIBDIR
 
-PACKAGECONFIG ??= "qt ${@base_contains('DISTRO_FEATURES', 'bluetooth', 'bluez', '', d)}"
+PACKAGECONFIG ??= "${@base_contains('DISTRO_FEATURES', 'bluetooth', 'bluez', '', d)}"
 PACKAGECONFIG[bluez] = "bluez='true',bluez='false',${BLUEZ}"
 PACKAGECONFIG[qt] = "qt='yes',qt='no',qt4-x11-free"
 EXTRA_OESCONS = " \
