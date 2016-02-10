@@ -55,8 +55,8 @@ PACKAGECONFIG ??= "${@base_contains('DISTRO_FEATURES', 'pam', 'pam', '', d)} \
 
 RDEPENDS_${PN} += "${@bb.utils.contains('PACKAGECONFIG', 'lsb', 'lsb', '', d)}"
 
-PACKAGECONFIG[acl] = "--with-acl-support,---without-acl-support,acl"
-PACKAGECONFIG[aio] = "--with-aio-support,---without-aio-support,libaio"
+PACKAGECONFIG[acl] = "--with-acl-support,--without-acl-support,acl"
+PACKAGECONFIG[aio] = "--with-aio-support,--without-aio-support,libaio"
 PACKAGECONFIG[fam] = "--with-fam,--without-fam,gamin"
 PACKAGECONFIG[pam] = "--with-pam --with-pam_smbpass --with-pammodulesdir=${base_libdir}/security,--without-pam --without-pam_smbpass,libpam"
 PACKAGECONFIG[lsb] = ",,lsb"
@@ -117,7 +117,7 @@ do_install_append() {
 	install -m 0755 packaging/LSB/samba.sh ${D}${sysconfdir}/init.d
 	update-rc.d -r ${D} samba.sh start 20 3 5 .
 	update-rc.d -r ${D} samba.sh start 20 0 1 6 .
-    elif ${@bb.utils.contains('PACKAGECONFIG', 'lsb', 'true', 'false', d)}; then
+    elif ${@bb.utils.contains('PACKAGECONFIG', 'sysv', 'true', 'false', d)}; then
 	install -d ${D}${sysconfdir}/init.d
 	install -m 0755 packaging/sysv/samba.init ${D}${sysconfdir}/init.d/samba.sh
 	update-rc.d -r ${D} samba.sh start 20 3 5 .
