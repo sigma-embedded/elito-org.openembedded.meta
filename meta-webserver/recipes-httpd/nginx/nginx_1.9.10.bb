@@ -6,7 +6,7 @@ concurrency, performance and low memory usage."
 
 HOMEPAGE = "http://nginx.org/"
 LICENSE = "BSD-2-Clause"
-LIC_FILES_CHKSUM = "file://LICENSE;md5=3845852aedfa8d6d7765f55d06cc3ebd"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=0bb58ed0dfd4f5dbece3b52aba79f023"
 SECTION = "net"
 
 DEPENDS = "libpcre gzip openssl"
@@ -19,13 +19,16 @@ SRC_URI = " \
 	file://nginx-volatile.conf \
 	file://nginx.service \
 "
-SRC_URI[md5sum] = "50fdfa08e93ead7a111cba5a5f5735af"
-SRC_URI[sha256sum] = "de66bb2b11c82533aa5cb5ccc27cbce736ab87c9f2c761e5237cda0b00068d73"
+SRC_URI[md5sum] = "64cc970988356a5e0fc4fcd1ab84fe57"
+SRC_URI[sha256sum] = "fb14d76844cab0a5a0880768be28965e74f9956790f618c454ef6098e26631d9"
 
 inherit update-rc.d useradd
 
 CFLAGS_append = " -fPIE -pie"
 CXXFLAGS_append = " -fPIE -pie"
+
+NGINX_WWWDIR ?= "${localstatedir}/www/localhost"
+NGINX_USER   ?= "www"
 
 EXTRA_OECONF = ""
 
@@ -71,9 +74,9 @@ do_install () {
 	fi
 	install -d ${D}${sysconfdir}/${BPN}
 	ln -snf ${localstatedir}/run/${BPN} ${D}${sysconfdir}/${BPN}/run
-	install -d ${D}${localstatedir}/www/localhost
-	mv ${D}/usr/html ${D}${localstatedir}/www/localhost/
-	chown www:www-data -R ${D}${localstatedir}
+	install -d ${D}${NGINX_WWWDIR}
+	mv ${D}/usr/html ${D}${NGINX_WWWDIR}/
+	chown ${NGINX_USER}:www-data -R ${D}${NGINX_WWWDIR}
 
 	install -d ${D}${sysconfdir}/init.d
 	install -m 0755 ${WORKDIR}/nginx.init ${D}${sysconfdir}/init.d/nginx
@@ -130,6 +133,6 @@ INITSCRIPT_PARAMS = "defaults 92 20"
 USERADD_PACKAGES = "${PN}"
 USERADD_PARAM_${PN} = " \
     --system --no-create-home \
-    --home ${localstatedir}/www/localhost \
+    --home ${NGINX_WWWDIR} \
     --groups www-data \
-    --user-group www"
+    --user-group ${NGINX_USER}"
