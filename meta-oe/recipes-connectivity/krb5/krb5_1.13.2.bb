@@ -32,6 +32,7 @@ SRC_URI = "http://web.mit.edu/kerberos/dist/${BPN}/${SHRT_VER}/${BP}-signed.tar 
            file://etc/init.d/krb5-admin-server \
            file://etc/default/krb5-kdc \
            file://etc/default/krb5-admin-server \
+           file://krb5-CVE-2016-3119.patch;striplevel=2 \
 "
 SRC_URI[md5sum] = "f7ebfa6c99c10b16979ebf9a98343189"
 SRC_URI[sha256sum] = "e528c30b0209c741f6f320cb83122ded92f291802b6a1a1dc1a01dcdb3ff6de1"
@@ -58,7 +59,7 @@ FILES_${PN}-doc += "${datadir}/examples"
 FILES_${PN}-dbg += "${libdir}/krb5/plugins/*/.debug"
 
 # As this recipe doesn't inherit update-rc.d, we need to add this dependency here
-RDEPENDS_${PN} += "initscripts-functions"
+RDEPENDS_${PN}_class-target += "initscripts-functions"
 
 krb5_do_unpack() {
     # ${P}-signed.tar contains ${P}.tar.gz.asc and ${P}.tar.gz
@@ -77,15 +78,15 @@ do_configure() {
 }
 
 do_install_append() {
-    mkdir -p ${D}/etc/init.d ${D}/etc/default
-    install -m 0755 ${WORKDIR}/etc/init.d/* ${D}/etc/init.d
-    install -m 0644 ${WORKDIR}/etc/default/* ${D}/etc/default
+    mkdir -p ${D}/${sysconfdir}/init.d ${D}/${sysconfdir}/default
+    install -m 0755 ${WORKDIR}/etc/init.d/* ${D}/${sysconfdir}/init.d
+    install -m 0644 ${WORKDIR}/etc/default/* ${D}/${sysconfdir}/default
 
-    rm -rf ${D}/var/run
-    mkdir -p ${D}/etc/default/volatiles
+    rm -rf ${D}/${localstatedir}/run
+    mkdir -p ${D}/${sysconfdir}/default/volatiles
     echo "d root root 0755 ${localstatedir}/run/krb5kdc none" \
            > ${D}${sysconfdir}/default/volatiles/87_krb5
-    if ${@base_contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
+    if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
         install -d ${D}${sysconfdir}/tmpfiles.d
         echo "d /run/krb5kdc - - - -" \
               > ${D}${sysconfdir}/tmpfiles.d/krb5.conf
@@ -102,3 +103,5 @@ pkg_postinst_${PN} () {
         fi
     fi
 }
+
+BBCLASSEXTEND = "native nativesdk"
