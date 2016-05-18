@@ -2,36 +2,47 @@ DESCRIPTION = "multi-protocol instant messaging client"
 SECTION = "x11/network"
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=751419260aa954499f7abaabaa882bbe"
-DEPENDS = "python startup-notification avahi gtk+ ncurses gnutls virtual/libintl gstreamer dbus intltool-native farsight2 libidn"
+DEPENDS = "python virtual/libintl intltool-native libxml2 gconf"
 
 inherit autotools gettext pkgconfig gconf perlnative
-
-# http://errors.yoctoproject.org/Errors/Details/25824/
-PNBLACKLIST[pidgin] ?= "Not compatible with gnutls version 3.4 currently in oe-core and also depends on broken libnice through farsight2"
 
 SRC_URI = "\
     ${SOURCEFORGE_MIRROR}/pidgin/pidgin-${PV}.tar.bz2 \
     file://sanitize-configure.ac.patch \
-    file://pidgin.desktop-set-icon.patch \
     file://purple-OE-branding-25.patch \
     file://pidgin-cross-python-265.patch \
 "
 
-SRC_URI[md5sum] = "10a4a69d077893f6dd3438cd8af94e81"
-SRC_URI[sha256sum] = "dc362ed8577f623eea4554a79e917073aa726825074fea402f2e515f0f51f319"
+SRC_URI[md5sum] = "14e0f5cfb2ed065e4dc80391a806ac76"
+SRC_URI[sha256sum] = "2c7523f0fefe89749c03b2b738ab9f7bd186da435be4762f1487eee31e77ffdd"
+
+PACKAGECONFIG ??= "gnutls consoleui avahi dbus idn \
+    ${@bb.utils.contains('DISTRO_FEATURES', 'x11', 'x11 gtk startup-notification', '', d)} \
+"
+PACKAGECONFIG[farsight2] = "--enable-farstream,--disable-farstream,farsight2"
+#  --disable-gstreamer     compile without GStreamer audio support
+#  --disable-gstreamer-video
+#                          compile without GStreamer 1.0 Video Overlay support
+#  --disable-gstreamer-interfaces
+#                          compile without GStreamer 0.10 interface support
+#  --with-gstreamer=<version>
+#                          compile with GStreamer 0.10 or 1.0 interface
+PACKAGECONFIG[gstreamer] = "--enable-gstreamer,--disable-gstreamer,gstreamer"
+PACKAGECONFIG[vv] = "--enable-vv,--disable-vv,gstreamer"
+PACKAGECONFIG[idn] = "--enable-idn,--disable-idn,libidn"
+PACKAGECONFIG[gtk] = "--enable-gtkui,--disable-gtkui,gtk+"
+PACKAGECONFIG[x11] = "--with-x=yes --x-includes=${STAGING_INCDIR} --x-libraries=${STAGING_LIBDIR},--with-x=no,virtual/libx11"
+PACKAGECONFIG[startup-notification] = "--enable-startup-notification,--disable-startup-notification,startup-notification"
+PACKAGECONFIG[consoleui] = "--enable-consoleui --with-ncurses-headers=${STAGING_INCDIR},--disable-consoleui,ncurses"
+PACKAGECONFIG[gnutls] = "--enable-gnutls --with-gnutls-includes=${STAGING_INCDIR} --with-gnutls-libs=${STAGING_LIBDIR},--disable-gnutls,gnutls"
+PACKAGECONFIG[dbus] = "--enable-dbus,--disable-dbus,dbus dbus-glib"
+PACKAGECONFIG[avahi] = "--enable-avahi,--disable-avahi,avahi"
 
 EXTRA_OECONF = " \
-    --enable-vv \
     --disable-perl \
     --disable-tcl \
     --disable-gevolution \
     --disable-schemas-install \
-    --x-includes=${STAGING_INCDIR} \
-    --x-libraries=${STAGING_LIBDIR} \
-    --enable-gnutls=yes \
-    --with-ncurses-headers=${STAGING_INCDIR} \
-    --with-gnutls-includes=${STAGING_INCDIR} \
-    --with-gnutls-libs=${STAGING_LIBDIR} \
     --disable-gtkspell \
     --disable-meanwhile \
     --disable-nm \
@@ -72,7 +83,7 @@ FILES_${PN} = "${bindir} ${datadir}/${PN} ${libdir}/${PN}/*.so \
            ${datadir}/applications"
 RRECOMMENDS_${PN} = "${PN}-data libpurple-plugin-ssl-gnutls libpurple-protocol-irc libpurple-protocol-xmpp"
 
-FILES_${PN}-data = "${datadir}/pixmaps ${datadir}/sounds ${datadir}/icons"
+FILES_${PN}-data = "${datadir}/pixmaps ${datadir}/sounds ${datadir}/icons ${datadir}/appdata"
 FILES_${PN}-dev += "${libdir}/${PN}/*.la"
 
 PACKAGES_DYNAMIC += "^libpurple-protocol-.* ^libpurple-plugin-.* ^pidgin-plugin-.* ^finch-plugin-.*"
