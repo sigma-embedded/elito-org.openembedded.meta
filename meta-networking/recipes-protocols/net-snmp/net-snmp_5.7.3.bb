@@ -20,6 +20,7 @@ SRC_URI = "${SOURCEFORGE_MIRROR}/net-snmp/net-snmp-${PV}.zip \
         file://run-ptest \
         file://dont-return-incompletely-parsed-varbinds.patch \
         file://0001-config_os_headers-Error-Fix.patch \
+        file://0001-config_os_libs2-Error-Fix.patch \
         file://0001-snmplib-keytools.c-Don-t-check-for-return-from-EVP_M.patch \
 "
 SRC_URI[md5sum] = "9f682bd70c717efdd9f15b686d07baee"
@@ -27,7 +28,7 @@ SRC_URI[sha256sum] = "e8dfc79b6539b71a6ff335746ce63d2da2239062ad41872fff4354cafe
 
 inherit autotools update-rc.d siteinfo systemd pkgconfig
 
-EXTRA_OEMAKE = "INSTALL_PREFIX=${D}"
+EXTRA_OEMAKE = "INSTALL_PREFIX=${D} OTHERLDFLAGS='${LDFLAGS}' HOST_CPPFLAGS='${BUILD_CPPFLAGS}'"
 
 PARALLEL_MAKE = ""
 CCACHE = ""
@@ -36,12 +37,13 @@ TARGET_CC_ARCH += "${LDFLAGS}"
 
 PACKAGECONFIG ??= ""
 PACKAGECONFIG[elfutils] = "--with-elf, --without-elf, elfutils"
+PACKAGECONFIG[libnl] = "--with-nl, --without-nl, libnl"
 
 EXTRA_OECONF = "--disable-embedded-perl \
                 --with-perl-modules=no \
-                --enable-shared \
                 --disable-manuals \
                 --with-defaults \
+                --with-install-prefix=${D} \
                 --with-persistent-directory=${localstatedir}/lib/net-snmp \
                 ${@base_conditional('SITEINFO_ENDIANNESS', 'le', '--with-endianness=little', '--with-endianness=big', d)}"
 
@@ -51,10 +53,15 @@ EXTRA_OECONF += "--with-mib-modules=smux"
 CACHED_CONFIGUREVARS = " \
     ac_cv_header_valgrind_valgrind_h=no \
     ac_cv_header_valgrind_memcheck_h=no \
+    ac_cv_ETC_MNTTAB=/etc/mtab \
+    lt_cv_shlibpath_overrides_runpath=yes \
 "
 
 do_configure_prepend() {
     export PERLPROG="${bindir}/env perl"
+    sed -i -e "s|I/usr/include|I${STAGING_INCDIR}|g" \
+        "${S}"/configure \
+        "${S}"/configure.d/config_os_libs2
 }
 
 do_install_append() {
@@ -63,15 +70,13 @@ do_install_append() {
     install -m 755 ${WORKDIR}/init ${D}${sysconfdir}/init.d/snmpd
     install -m 644 ${WORKDIR}/snmpd.conf ${D}${sysconfdir}/snmp/
     install -m 644 ${WORKDIR}/snmptrapd.conf ${D}${sysconfdir}/snmp/
-    sed -e "s@-I/usr/include@@g" \
-        -e "s@^prefix=.*@prefix=${STAGING_DIR_HOST}@g" \
-        -e "s@^exec_prefix=.*@exec_prefix=${STAGING_DIR_HOST}@g" \
-        -e "s@^includedir=.*@includedir=${STAGING_INCDIR}@g" \
-        -e "s@^libdir=.*@libdir=${STAGING_LIBDIR}@g" \
-        -i ${D}${bindir}/net-snmp-config
     install -d ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/snmpd.service ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/snmptrapd.service ${D}${systemd_unitdir}/system
+    sed    -e "s@^NSC_SRCDIR=.*@NSC_SRCDIR=.@g" \
+        -i ${D}${bindir}/net-snmp-create-v3-user
+    sed    -e "s@^NSC_SRCDIR=.*@NSC_SRCDIR=.@g" \
+        -i ${D}${bindir}/net-snmp-config
 }
 
 do_install_ptest() {
@@ -79,7 +84,7 @@ do_install_ptest() {
     for i in ${S}/dist ${S}/include ${B}/include ${S}/mibs ${S}/configure \
         ${B}/net-snmp-config ${S}/testing; do
         if [ -e "$i" ]; then
-            cp -a "$i" ${D}${PTEST_PATH}
+            cp -R --no-dereference --preserve=mode,links -v "$i" ${D}${PTEST_PATH}
         fi
     done
     echo `autoconf -V|awk '/autoconf/{print $NF}'` > ${D}${PTEST_PATH}/dist/autoconf-version
@@ -98,6 +103,13 @@ net_snmp_sysroot_preprocess () {
     if [ -e ${D}${bindir}/net-snmp-config ]; then
         install -d ${SYSROOT_DESTDIR}${bindir_crossscripts}/
         install -m 755 ${D}${bindir}/net-snmp-config ${SYSROOT_DESTDIR}${bindir_crossscripts}/
+        sed -e "s@-I/usr/include@-I${STAGING_INCDIR}@g" \
+            -e "s@^prefix=.*@prefix=${STAGING_DIR_HOST}${prefix}@g" \
+            -e "s@^exec_prefix=.*@exec_prefix=${STAGING_EXECPREFIXDIR}@g" \
+            -e "s@^includedir=.*@includedir=${STAGING_INCDIR}@g" \
+            -e "s@^libdir=.*@libdir=${STAGING_LIBDIR}@g" \
+            -e "s@^NSC_SRCDIR=.*@NSC_SRCDIR=${S}@g" \
+          -i  ${SYSROOT_DESTDIR}${bindir_crossscripts}/net-snmp-config
     fi
 }
 
