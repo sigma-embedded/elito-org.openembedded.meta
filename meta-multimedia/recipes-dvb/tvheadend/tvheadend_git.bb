@@ -14,6 +14,8 @@ PV = "3.3"
 
 S = "${WORKDIR}/git"
 
+TARGET_CFLAGS += "-Wno-error=misleading-indentation"
+
 do_configure() {
     ./configure --prefix=${prefix} \
                 --libdir=${libdir} \
