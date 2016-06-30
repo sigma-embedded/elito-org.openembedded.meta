@@ -9,13 +9,10 @@ SRCREV = "b5cc957eeabfe98cb996baf8e5a0ac848993c3d4"
 
 S = "${WORKDIR}/git"
 
-inherit distutils 
+inherit distutils setuptools
 
 DEPENDS_${PN} = "python python-distribute"
 RDEPENDS_${PN} = "python python-dbus python-json python-argparse python-pygobject python-autobahn python-twisted python-subprocess"
-
-# http://lists.openembedded.org/pipermail/openembedded-devel/2016-June/107798.html
-PNBLACKLIST[python-cloudeebus] ?= "Rdepends on broken python-pygobject"
 
 do_install_prepend() {
   install -d ${D}${PYTHON_SITEPACKAGES_DIR}/${PN}
