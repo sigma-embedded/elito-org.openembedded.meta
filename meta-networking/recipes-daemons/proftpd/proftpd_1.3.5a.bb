@@ -21,9 +21,10 @@ SRC_URI[sha256sum] = "a1f48df8539c414ec56e0cea63dcf4b8e16e606c05f10156f030a4a67f
 
 inherit autotools-brokensep useradd update-rc.d systemd
 
-PACKAGECONFIG ??= "sia shadow"
-PACKAGECONFIG += " ${@bb.utils.contains('DISTRO_FEATURES', 'ipv6', 'ipv6', '', d)}"
-PACKAGECONFIG += " ${@bb.utils.contains('DISTRO_FEATURES', 'pam', 'pam', '', d)}"
+PACKAGECONFIG ??= "shadow \
+                   ${@bb.utils.contains('DISTRO_FEATURES', 'ipv6', 'ipv6', '', d)} \
+                   ${@bb.utils.contains('DISTRO_FEATURES', 'pam', 'pam', '', d)} \
+                  "
 
 PACKAGECONFIG[curses] = "--enable-curses --enable-ncurses, --disable-curses --disable-ncurses, ncurses"
 PACKAGECONFIG[openssl] = "--enable-openssl, --disable-openssl, openssl, openssl"
@@ -98,6 +99,11 @@ do_install () {
         -e 's,@SYSCONFDIR@,${sysconfdir},g' \
         -e 's,@SBINDIR@,${sbindir},g' \
         -i ${D}${systemd_unitdir}/system/*.service
+
+    sed -e 's|--sysroot=${STAGING_DIR_HOST}||g' \
+        -e 's|${STAGING_DIR_NATIVE}||g' \
+        -e 's|-fdebug-prefix-map=[^ ]*||g' \
+        -i ${D}/${bindir}/prxs
 }
 
 INITSCRIPT_NAME = "proftpd"
