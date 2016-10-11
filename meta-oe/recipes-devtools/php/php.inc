@@ -3,7 +3,6 @@ HOMEPAGE = "http://www.php.net"
 SECTION = "console/network"
 
 LICENSE = "PHP-3.0"
-LIC_FILES_CHKSUM = "file://LICENSE;md5=464ca70af214d2407f6b7d4458158afd"
 
 BBCLASSEXTEND = "native"
 DEPENDS = "zlib bzip2 libxml2 virtual/libiconv php-native lemon-native \
@@ -71,7 +70,9 @@ EXTRA_OECONF_class-native = " \
 "
 
 PACKAGECONFIG ??= "mysql sqlite3 imap \
-                   ${@bb.utils.contains('DISTRO_FEATURES', 'pam', 'pam', '', d)}"
+                   ${@bb.utils.contains('DISTRO_FEATURES', 'pam', 'pam', '', d)} \
+                   ${@bb.utils.contains('DISTRO_FEATURES', 'ipv6', 'ipv6', '', d)} \
+"
 PACKAGECONFIG_class-native = ""
 
 PACKAGECONFIG[mysql] = "--with-mysql=${STAGING_DIR_TARGET}${prefix} \
@@ -92,6 +93,7 @@ PACKAGECONFIG[imap] = "--with-imap=${STAGING_DIR_HOST} \
                        --with-imap-ssl=${STAGING_DIR_HOST} \
                        ,--without-imap --without-imap-ssl \
                        ,uw-imap"
+PACKAGECONFIG[ipv6] = "--enable-ipv6,--disable-ipv6,"
 
 
 export PHP_NATIVE_DIR = "${STAGING_BINDIR_NATIVE}"
@@ -121,8 +123,8 @@ do_install_append_class-native() {
 }
 
 do_install_prepend() {
-    cat aclocal-copy/libtool.m4 aclocal-copy/lt~obsolete.m4 aclocal-copy/ltoptions.m4 \
-        aclocal-copy/ltsugar.m4 aclocal-copy/ltversion.m4 > ${S}/build/libtool.m4
+    cat ${ACLOCALDIR}/libtool.m4 ${ACLOCALDIR}/lt~obsolete.m4 ${ACLOCALDIR}/ltoptions.m4 \
+        ${ACLOCALDIR}/ltsugar.m4 ${ACLOCALDIR}/ltversion.m4 > ${S}/build/libtool.m4
 }
 
 do_install_prepend_class-target() {
@@ -166,7 +168,9 @@ do_install_append_class-target() {
 
     TMP=`dirname ${D}/${TMPDIR}`
     while test ${TMP} != ${D}; do
-        rmdir ${TMP}
+        if [ -d ${TMP} ]; then
+            rmdir ${TMP}
+        fi
         TMP=`dirname ${TMP}`;
     done
 
