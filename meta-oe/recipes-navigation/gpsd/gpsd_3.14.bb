@@ -17,6 +17,7 @@ SRC_URI = "${SAVANNAH_GNU_MIRROR}/${BPN}/${BP}.tar.gz \
     file://0003-Whoops-check-for-C11-not-for-not-C11-in-stdatomic.h-.patch \
     file://0001-Include-stdatomic.h-only-in-C-mode.patch \
     file://0001-libgpsd-core-Fix-issue-with-ACTIVATE-hook-not-being-.patch \
+    file://0001-include-sys-ttydefaults.h.patch \
     file://gpsd-default \
     file://gpsd \
     file://60-gpsd.rules \
@@ -45,9 +46,8 @@ EXTRA_OESCONS = " \
     strip='false' \
     chrpath='yes' \
     systemd='${SYSTEMD_OESCONS}' \
-    ${EXTRA_OECONF} \
+    ${PACKAGECONFIG_CONFARGS} \
 "
-DISABLE_STATIC = ""
 # this cannot be used, because then chrpath is not found and only static lib is built
 # target=${HOST_SYS}
 
@@ -55,12 +55,14 @@ do_compile_prepend() {
     export PKG_CONFIG_PATH="${PKG_CONFIG_PATH}"
     export PKG_CONFIG="PKG_CONFIG_SYSROOT_DIR=\"${PKG_CONFIG_SYSROOT_DIR}\" pkg-config"
     export STAGING_PREFIX="${STAGING_DIR_HOST}/${prefix}"
+    export LINKFLAGS="${LDFLAGS}"
 }
 
 do_install() {
     export PKG_CONFIG_PATH="${PKG_CONFIG_PATH}"
     export PKG_CONFIG="PKG_CONFIG_SYSROOT_DIR=\"${PKG_CONFIG_SYSROOT_DIR}\" pkg-config"
     export STAGING_PREFIX="${STAGING_DIR_HOST}/${prefix}"
+    export LINKFLAGS="${LDFLAGS}"
 
     export DESTDIR="${D}"
     # prefix is used for RPATH and DESTDIR/prefix for instalation
@@ -137,6 +139,3 @@ RPROVIDES_${PN} += "${PN}-systemd"
 RREPLACES_${PN} += "${PN}-systemd"
 RCONFLICTS_${PN} += "${PN}-systemd"
 SYSTEMD_SERVICE_${PN} = "${PN}.socket"
-
-# http://errors.yoctoproject.org/Errors/Details/81000/
-PNBLACKLIST[gpsd] ?= "BROKEN: fails to build with new binutils 2.27"
