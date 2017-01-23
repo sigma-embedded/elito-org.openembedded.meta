@@ -94,7 +94,6 @@ EXTRA_OECONF += "--enable-fhs \
                  --with-libiconv=${STAGING_DIR_HOST}${prefix} \
                  --with-pam --with-pammodulesdir=${base_libdir}/security \
                 "
-DISABLE_STATIC = ""
 
 LDFLAGS += "-Wl,-z,relro,-z,now ${@bb.utils.contains('DISTRO_FEATURES', 'ld-is-gold', ' -fuse-ld=bfd ', '', d)}"
 
@@ -151,7 +150,9 @@ do_install_append() {
     done
 
     # fix file-rdeps qa warning
-    sed -i 's:\(#!/bin/\)bash:\1sh:' ${D}${bindir}/onnode
+    if [ -f ${D}${bindir}/onnode ]; then
+        sed -i 's:\(#!/bin/\)bash:\1sh:' ${D}${bindir}/onnode
+    fi
 
     rm -rf ${D}/run ${D}${localstatedir}/run ${D}${localstatedir}/log
 }
