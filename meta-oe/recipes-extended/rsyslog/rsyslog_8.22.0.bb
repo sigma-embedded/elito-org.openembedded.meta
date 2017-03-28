@@ -26,19 +26,23 @@ SRC_URI = "http://www.rsyslog.com/download/files/download/rsyslog/${BPN}-${PV}.t
            file://rsyslog-fix-ptest-not-finish.patch \
 "
 
+SRC_URI_append_libc-musl = " \
+    file://0001-Undefine-GLOB_BRACE.patch \
+    file://0001-Include-sys-time-h.patch \
+"
+
 SRC_URI[md5sum] = "ad0f25f429aa2daa326732950a5eeb6c"
 SRC_URI[sha256sum] = "06e2884181333dccecceaca82827ae24ca7a258b4fbf7b1e07a80d4caae640ca"
 
 inherit autotools pkgconfig systemd update-rc.d ptest
 
-EXTRA_OECONF += "--disable-generate-man-pages"
+EXTRA_OECONF += "--disable-generate-man-pages ap_cv_atomic_builtins=yes"
 
 # first line is default yes in configure
 PACKAGECONFIG ??= " \
     rsyslogd rsyslogrt klog inet regexp uuid libgcrypt \
     imdiag gnutls imfile \
-    ${@bb.utils.contains('DISTRO_FEATURES', 'snmp', 'snmp', '', d)} \
-    ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'systemd', '', d)} \
+    ${@bb.utils.filter('DISTRO_FEATURES', 'snmp systemd', d)} \
     ${@bb.utils.contains('DISTRO_FEATURES', 'ptest', 'testbench relp ${VALGRIND}', '', d)} \
 "
 

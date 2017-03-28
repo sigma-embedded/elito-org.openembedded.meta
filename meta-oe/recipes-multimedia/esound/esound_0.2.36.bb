@@ -24,6 +24,9 @@ EXTRA_OECONF = " \
     --disable-arts \
     --disable-artstest \
 "
+
+CFLAGS += "-lm"
+
 do_configure_prepend() {
     sed -i -e 's:/usr/include/mme:${STAGING_INCDIR}/mme:g' ${S}/configure.ac
 }
@@ -33,4 +36,3 @@ PACKAGES =+ "esddsp esd esd-utils"
 FILES_esddsp = "${bindir}/esddsp ${libdir}/libesddsp.so.*"
 FILES_esd = "${bindir}/esd"
 FILES_esd-utils = "${bindir}/*"
-
