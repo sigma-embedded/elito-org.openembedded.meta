@@ -34,5 +34,3 @@ FILES_${PN} += " \
     ${datadir}/mime/packages/openbenchmarking-mime.xml \
     ${systemd_unitdir}/* \
 "
-
-PNBLACKLIST[phoronix-test-suite] ?= "Runtime depends on blacklisted php-cli"

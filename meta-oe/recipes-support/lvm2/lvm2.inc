@@ -12,6 +12,8 @@ SRC_URI = "ftp://sources.redhat.com/pub/lvm2/old/LVM2.${PV}.tgz \
            file://0002-Guard-use-of-mallinfo-with-__GLIBC__.patch \
            file://0003-include-fcntl.h-for-O_-defines-and-fcntl-signature.patch \
            file://0004-tweak-MODPROBE_CMD-for-cross-compile.patch \
+           file://0001-Avoid-bashisms-in-init-scripts.patch \
+           file://0005-do-not-build-manual.patch \
            "
 S = "${WORKDIR}/LVM2.${PV}"
 
@@ -24,13 +26,11 @@ LVM2_PACKAGECONFIG_append_class-target = " \
     udev \
 "
 
-PACKAGECONFIG ??= "${LVM2_PACKAGECONFIG}"
-
 # odirect is always enabled because there currently is a bug in
 # lib/device/dev-io.c which prevents compiling without it. It is
 # better to stick to configurations that were actually tested by
 # upstream...
-PACKAGECONFIG_append = " odirect"
+PACKAGECONFIG ??= "odirect ${LVM2_PACKAGECONFIG}"
 
 PACKAGECONFIG[dmeventd] = "--enable-dmeventd,--disable-dmeventd"
 PACKAGECONFIG[lvmetad] = "--enable-lvmetad,--disable-lvmetad"
@@ -56,50 +56,3 @@ EXTRA_OECONF = "--with-user= \
                 --with-thin-restore=${sbindir}/thin_restore \
 "
 
-CACHED_CONFIGUREVARS += "MODPROBE_CMD=${base_sbindir}/modprobe"
-
-do_install_append() {
-    # Install machine specific configuration file
-    install -d ${D}${sysconfdir}/lvm
-    install -m 0644 ${WORKDIR}/lvm.conf ${D}${sysconfdir}/lvm/lvm.conf
-    sed -i -e 's:@libdir@:${libdir}:g' ${D}${sysconfdir}/lvm/lvm.conf
-    if ${@bb.utils.contains('DISTRO_FEATURES','systemd','true','false',d)}; then
-        oe_runmake 'DESTDIR=${D}' install install_systemd_units
-        sed -i -e 's:/usr/bin/true:${base_bindir}/true:g' ${D}${systemd_system_unitdir}/blk-availability.service
-    else
-        oe_runmake 'DESTDIR=${D}' install install_initscripts
-        mv ${D}${sysconfdir}/rc.d/init.d ${D}${sysconfdir}/init.d
-        rm -rf ${D}${sysconfdir}/rc.d
-    fi
-}
-
-PACKAGE_BEFORE_PN = "${PN}-scripts libdevmapper libdevmapper-dev"
-
-SYSTEMD_PACKAGES = "${PN}"
-SYSTEMD_SERVICE_${PN} = "${@bb.utils.contains('PACKAGECONFIG', 'dmeventd', 'lvm2-monitor.service dm-event.socket dm-event.service', '', d)} \
-                         ${@bb.utils.contains('PACKAGECONFIG', 'lvmetad', 'lvm2-lvmetad.socket lvm2-pvscan@.service', '', d)} \
-                         blk-availability.service"
-SYSTEMD_AUTO_ENABLE = "disable"
-
-TARGET_CC_ARCH += "${LDFLAGS}"
-
-FILES_${PN} += "${libdir}/device-mapper/*.so ${nonarch_base_libdir}/udev"
-FILES_${PN}-scripts = " \
-    ${sbindir}/blkdeactivate \
-    ${sbindir}/fsadm \
-    ${sbindir}/lvmconf \
-    ${sbindir}/lvmdump \
-"
-FILES_libdevmapper = "${libdir}/libdevmapper.so.*"
-FILES_libdevmapper-dev = " \
-    ${libdir}/libdevmapper.so \
-    ${libdir}/pkgconfig/devmapper.pc \
-    ${includedir}/libdevmapper.h \
-"
-
-RDEPENDS_${PN}-scripts = "${PN} (= ${EXTENDPKGV}) bash"
-RDEPENDS_${PN} = " bash"
-RDEPENDS_libdevmapper-dev = "libdevmapper (= ${EXTENDPKGV})"
-RRECOMMENDS_${PN} = "${PN}-scripts (= ${EXTENDPKGV})"
-
-CONFFILES_${PN} += "${sysconfdir}/lvm/lvm.conf"

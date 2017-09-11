@@ -24,6 +24,8 @@ SRC_URI = "http://www.rsyslog.com/download/files/download/rsyslog/${BPN}-${PV}.t
            file://use-pkgconfig-to-check-libgcrypt.patch \
            file://run-ptest \
            file://rsyslog-fix-ptest-not-finish.patch \
+           file://CVE-2017-12588.patch \
+           file://0001-core-bugfix-segfault-after-configuration-errors.patch \
 "
 
 SRC_URI_append_libc-musl = " \
@@ -118,9 +120,10 @@ do_install_ptest() {
 
 do_install_append() {
     install -d "${D}${sysconfdir}/init.d"
+    install -d "${D}${sysconfdir}/logrotate.d"
     install -m 755 ${WORKDIR}/initscript ${D}${sysconfdir}/init.d/syslog
     install -m 644 ${WORKDIR}/rsyslog.conf ${D}${sysconfdir}/rsyslog.conf
-    install -m 644 ${WORKDIR}/rsyslog.logrotate ${D}${sysconfdir}/logrotate.rsyslog
+    install -m 644 ${WORKDIR}/rsyslog.logrotate ${D}${sysconfdir}/logrotate.d/logrotate.rsyslog
 }
 
 FILES_${PN} += "${bindir}"
