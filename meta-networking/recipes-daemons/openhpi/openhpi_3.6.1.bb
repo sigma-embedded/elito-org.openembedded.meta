@@ -20,7 +20,7 @@ SECTION = "net"
 LICENSE = "BSD"
 LIC_FILES_CHKSUM = "file://COPYING;md5=e3c772a32386888ccb5ae1c0ba95f1a4"
 
-DEPENDS = "net-snmp libxml2 ncurses openssl glib-2.0 popt e2fsprogs"
+DEPENDS = "net-snmp libxml2 ncurses openssl glib-2.0 popt e2fsprogs autoconf-archive-native"
 
 SRC_URI = "${SOURCEFORGE_MIRROR}/${BPN}/${BP}.tar.gz \
            file://openhpi-netsnmp-cross-compile.patch \
@@ -36,6 +36,9 @@ SRC_URI = "${SOURCEFORGE_MIRROR}/${BPN}/${BP}.tar.gz \
            file://openhpi-use-serial-tests-config-needed-by-ptest.patch \
            file://openhpi-fix-alignment-issue.patch \
            file://0001-Fix-build-failures-with-gcc7.patch \
+           file://c++11.patch \
+           file://clang-c++11.patch \
+           file://fix-narrowing-warning.patch \
            \
            file://openhpi.init \
            file://openhpid.service \
@@ -54,9 +57,10 @@ FILES_${PN}-libs = "${libdir}/${BPN}/*.so /usr/lib/${BPN}/*.so"
 INSANE_SKIP_${PN}-libs = "dev-so"
 RDEPENDS_${PN} += "${PN}-libs"
 
-PACKAGECONFIG ??= "libgcrypt"
+PACKAGECONFIG ??= "libgcrypt non32bit"
 PACKAGECONFIG[sysfs] = "--enable-sysfs,--disable-sysfs,sysfsutils,"
 PACKAGECONFIG[libgcrypt] = "--enable-encryption,--disable-encryption,libgcrypt,"
+PACKAGECONFIG[non32bit] = "--enable-non32bit-int,--disable-non32bit-int,,"
 
 do_install_append () {
     install -m 0755 -d ${D}${sysconfdir}/${BPN}

@@ -18,6 +18,7 @@ SRC_URI = "git://git.kernel.org/pub/scm/libs/klibc/klibc.git \
            file://0001-mkfifo-Implement-mkfifo.patch \
            file://0001-always-use-bfd-linker.patch \
            file://0001-Kbuild.klibc-Use-print-libgcc-file-name-instead-of-p.patch \
+           file://0001-Kbuild.klibc-Add-path-to-compiler-headers-via-isyste.patch \
 "
 
 ARMPATCHES ?= ""
@@ -49,7 +50,7 @@ do_configure () {
     ln -sf "${STAGING_DIR_TARGET}${exec_prefix}" linux
 }
 
-do_configure_prepend_toolchain-clang() {
+do_compile_prepend_toolchain-clang() {
     sed -i -e 's#$(KLIBCROSS)gcc#$(KLIBCROSS)clang#g' ${S}/Makefile
 }
 

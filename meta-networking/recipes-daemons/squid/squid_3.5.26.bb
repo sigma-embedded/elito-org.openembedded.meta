@@ -26,15 +26,18 @@ SRC_URI = "http://www.squid-cache.org/Versions/v${MAJ_VER}/${MIN_VER}/${BPN}-${P
            file://gcc7-fixes.patch \
            file://0001-tools.cc-fixed-unused-result-warning.patch \
            "
+
+SRC_URI_remove_toolchain-clang = "file://0001-configure-Check-for-Wno-error-format-truncation-comp.patch"
+
 SRC_URI[md5sum] = "dc1830cd361e077814aa39bcc3691d8b"
 SRC_URI[sha256sum] = "41d8845863dcd026c856508cd1599d417c8947ffd96e86e24085f9893cb8b8c2"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=c492e2d6d32ec5c1aad0e0609a141ce9 \
                     file://errors/COPYRIGHT;md5=8861130fae91400bcf99b66f133172b3 \
                    "
-DEPENDS = "libtool krb5 openldap db cyrus-sasl"
+DEPENDS = "libtool krb5 openldap db cyrus-sasl openssl expat libxml2"
 
-inherit autotools useradd ptest
+inherit autotools pkgconfig useradd ptest perlnative
 
 USERADD_PACKAGES = "${PN}"
 USERADD_PARAM_${PN} = "--system --no-create-home --home-dir /var/run/squid --shell /bin/false --user-group squid"
@@ -49,12 +52,14 @@ PACKAGECONFIG[noatomics] = "squid_cv_gnu_atomics=no,squid_cv_gnu_atomics=yes,,"
 PACKAGECONFIG[ipv6] = "--enable-ipv6,--disable-ipv6,"
 
 BASIC_AUTH = "DB SASL LDAP"
-BASIC_AUTH_append_libc-glibc = " NIS"
 
 DEPENDS += "${@bb.utils.contains('DISTRO_FEATURES', 'pam', 'libpam', '', d)}"
 BASIC_AUTH += "${@bb.utils.contains('DISTRO_FEATURES', 'pam', 'PAM', '', d)}"
 
-EXTRA_OECONF += "--with-default-user=squid --enable-auth-basic='${BASIC_AUTH}' --sysconfdir=${sysconfdir}/${BPN} --with-logdir=${localstatedir}/log/${BPN}"
+EXTRA_OECONF += "--with-default-user=squid --enable-auth-basic='${BASIC_AUTH}' \
+                 --sysconfdir=${sysconfdir}/${BPN} \
+                 --with-logdir=${localstatedir}/log/${BPN} \
+                 'PERL=${USRBINPATH}/env perl'"
 
 export BUILDCXXFLAGS="${BUILD_CXXFLAGS}"
 

@@ -20,6 +20,7 @@ SRC_URI = "${APACHE_MIRROR}/httpd/httpd-${PV}.tar.bz2 \
            file://init \
            file://apache2-volatile.conf \
            file://apache2.service \
+           file://volatiles.04_apache2 \
           "
 
 LIC_FILES_CHKSUM = "file://LICENSE;md5=dbff5a2b542fa58854455bf1a0b94b83"
@@ -58,8 +59,12 @@ EXTRA_OECONF = "--enable-ssl \
     ac_cv_have_threadsafe_pollset=no"
 
 PACKAGECONFIG ?= "${@bb.utils.filter('DISTRO_FEATURES', 'selinux', d)}"
-PACKAGECONFIG[selinux] = "--enable-selinux,--disable-selinux,libselinux,libselinux"
+PACKAGECONFIG[selinux] = "--enable-selinux --enable-layout=Debian --prefix=${base_prefix}/,--disable-selinux,libselinux,libselinux"
 PACKAGECONFIG[openldap] = "--enable-ldap --enable-authnz-ldap,--disable-ldap --disable-authnz-ldap,openldap"
+
+do_configure_prepend() {
+        sed -i -e 's:$''{prefix}/usr/lib/cgi-bin:$''{libdir}/cgi-bin:g' ${S}/config.layout
+}
 
 do_install_append() {
     install -d ${D}/${sysconfdir}/init.d
@@ -90,6 +95,9 @@ do_install_append() {
     if ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'true', 'false', d)}; then
         install -d ${D}${sysconfdir}/tmpfiles.d/
         install -m 0644 ${WORKDIR}/apache2-volatile.conf ${D}${sysconfdir}/tmpfiles.d/
+    elif ${@bb.utils.contains('DISTRO_FEATURES', 'sysvinit', 'true', 'false', d)}; then
+        install -d ${D}${sysconfdir}/default/volatiles
+        install -m 0644 ${WORKDIR}/volatiles.04_apache2 ${D}${sysconfdir}/default/volatiles/04_apache2
     fi
 
     install -d ${D}${systemd_unitdir}/system
@@ -107,6 +115,7 @@ do_install_append_class-target() {
 
     sed -i -e 's,${STAGING_DIR_HOST},,g' \
            -e 's,".*/configure","configure",g' ${D}${datadir}/apache2/build/config.nice
+    rm -rf ${D}${localstatedir}/run
 }
 
 SYSROOT_PREPROCESS_FUNCS += "apache_sysroot_preprocess"
@@ -180,3 +189,6 @@ FILES_${PN}-dbg += "${libdir}/${BPN}/modules/.debug"
 RDEPENDS_${PN} += "openssl libgcc"
 RDEPENDS_${PN}-scripts += "perl ${PN}"
 RDEPENDS_${PN}-dev = "perl"
+
+FILES_${PN} += "${libdir}/cgi-bin"
+FILES_${PN} += "${datadir}/${BPN}/"
