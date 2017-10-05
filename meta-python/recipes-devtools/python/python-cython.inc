@@ -7,8 +7,8 @@ LIC_FILES_CHKSUM = "file://LICENSE.txt;md5=e23fadd6ceef8c618fc1c65191d846fa"
 PYPI_PACKAGE = "Cython"
 BBCLASSEXTEND = "native"
 
-SRC_URI[md5sum] = "8853dcb78749a786ad5ccdc007a8932f"
-SRC_URI[sha256sum] = "c2e63c4794161135adafa8aa4a855d6068073f421c83ffacc39369497a189dd5"
+SRC_URI[md5sum] = "b93750b34382b025d678bea819b7491b"
+SRC_URI[sha256sum] = "e6840a2ba2704f4ffb40e454c36f73aeb440a4005453ee8d7ff6a00d812ba176"
 
 inherit pypi
 
