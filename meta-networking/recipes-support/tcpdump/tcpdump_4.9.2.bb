@@ -13,8 +13,8 @@ SRC_URI = " \
     file://run-ptest \
 "
 
-SRC_URI[md5sum] = "2b83364eef53b63ca3181b4eb56dab0c"
-SRC_URI[sha256sum] = "eae98121cbb1c9adbedd9a777bf2eae9fa1c1c676424a54740311c8abcee5a5e"
+SRC_URI[md5sum] = "9bbc1ee33dab61302411b02dd0515576"
+SRC_URI[sha256sum] = "798b3536a29832ce0cbb07fafb1ce5097c95e308a6f592d14052e1ef1505fe79"
 
 export LIBS=" -lpcap"
 
