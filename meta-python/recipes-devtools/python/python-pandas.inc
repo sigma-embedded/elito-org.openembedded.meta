@@ -6,10 +6,9 @@ HOMEPAGE = "http://pandas.pydata.org/"
 LICENSE = "BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=ee0470f2de336c370a71c2f8d5e81c11"
 
-SRC_URI[md5sum] = "6f14884caaa87a0824b5e93fe032b904"
-SRC_URI[sha256sum] = "5cd5cb30e72eeaf202f0e5e180780b897570e889d2db328c689a5a263405c559"
+SRC_URI[md5sum] = "c7a2757b607748255f3270221ac61d59"
+SRC_URI[sha256sum] = "44a94091dd71f05922eec661638ec1a35f26d573c119aa2fad964f10a2880e6c"
 
-PYPI_PACKAGE = "pandas"
 inherit pypi
 
 DEPENDS += " \
@@ -17,6 +16,7 @@ DEPENDS += " \
 "
 
 RDEPENDS_${PN} += " \
+    ${PYTHON_PN}-json \
     ${PYTHON_PN}-numpy \
     ${PYTHON_PN}-dateutil \
     ${PYTHON_PN}-pytz \
