@@ -8,7 +8,7 @@ inherit distro_features_check autotools pkgconfig useradd systemd
 
 DEPENDS = "openssl virtual/libx11 libxfixes libxrandr libpam nasm-native"
 
-REQUIRED_DISTRO_FEATURES = "x11"
+REQUIRED_DISTRO_FEATURES = "x11 pam"
 
 SRC_URI = "git://github.com/neutrinolabs/xrdp.git \
            file://xrdp.sysconfig \
@@ -24,6 +24,9 @@ PV = "0.9.4+git${SRCPV}"
 
 S = "${WORKDIR}/git"
 
+PACKAGECONFIG ??= ""
+PACKAGECONFIG[fuse] = " --enable-fuse, --disable-fuse, fuse"
+
 USERADD_PACKAGES = "${PN}"
 GROUPADD_PARAM_${PN} = "--system xrdp"
 USERADD_PARAM_${PN}  = "--system --home /var/run/xrdp -g xrdp \
@@ -37,7 +40,7 @@ FILES_${PN}-dev += "${libdir}/xrdp/libcommon.so \
                     ${libdir}/xrdp/libscp.so \
                     ${libdir}/xrdp/libxrdpapi.so "
 
-#EXTRA_OECONF = "--disable-rfxcodec --disable-painter"
+EXTRA_OECONF = "--enable-pam-config=suse"
 
 do_configure_prepend() {
     cd ${S}
@@ -65,7 +68,6 @@ do_install_append() {
 	sed -i -e 's,@sbindir@,${sbindir},g' ${D}${systemd_unitdir}/system/xrdp.service ${D}${systemd_unitdir}/system/xrdp-sesman.service
 
 	install -m 0644 ${S}/instfiles/*.ini ${D}${sysconfdir}/xrdp/
-	install -m 0644 ${S}/instfiles/pam.d/xrdp-sesman.debian ${D}${sysconfdir}/xrdp/pam.d/xrdp-sesman
 	install -m 0644 ${S}/sesman/sesman.ini ${D}${sysconfdir}/xrdp/
 	install -m 0644 ${S}/sesman/startwm.sh ${D}${sysconfdir}/xrdp/
 	install -m 0644 ${S}/xrdp/xrdp.ini ${D}${sysconfdir}/xrdp/
