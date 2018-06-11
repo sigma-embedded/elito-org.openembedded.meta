@@ -36,7 +36,6 @@ EXTRA_OECONF = " \
     --with-librabbitmq-client=no \
     --disable-python \
     --disable-java --disable-java-modules \
-    --with-pidfile-dir=${localstatedir}/run/${BPN} \
     ${CONFIG_TLS} \
 "
 

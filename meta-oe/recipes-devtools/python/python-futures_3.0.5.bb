@@ -12,5 +12,3 @@ SRC_URI[sha256sum] = "0542525145d5afc984c88f914a0c85c77527f65946617edb5274f72406
 S = "${WORKDIR}/futures-${PV}"
 
 inherit setuptools
-
-BBCLASSEXTEND = "native"

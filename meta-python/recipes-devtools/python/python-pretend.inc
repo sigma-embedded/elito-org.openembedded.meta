@@ -1,5 +1,4 @@
 SUMMARY = "A library for stubbing in Python"
-HOMEPAGE = "https://github.com/alex/pretend"
 LICENSE = "BSD"
 LIC_FILES_CHKSUM = "file://LICENSE.rst;md5=411780c0b7fa756753e94affeee5bc99"
 

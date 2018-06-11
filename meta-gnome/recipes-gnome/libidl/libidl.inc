@@ -1,5 +1,4 @@
 DESCRIPTION = "Library for parsing CORBA IDL files"
-HOMEPAGE = "http://andrewtv.org/libIDL/"
 SECTION = "x11/gnome/libs"
 LICENSE = "LGPLv2+"
 

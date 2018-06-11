@@ -17,7 +17,6 @@ S = "${WORKDIR}/${PN}-${PV}"
 EXTRA_OEMAKE = " \
     CC='${CXX}' \
     CFLAGS='${CFLAGS} -ffast-math -funroll-loops -fPIC -DPIC' \
-    ARCH='' \
 "
 do_compile() {
     oe_runmake all

@@ -21,8 +21,3 @@ do_compile_prepend() {
 do_install_prepend() {
     cd cli
 }
-
-python() {
-    if 'meta-python' not in d.getVar('BBFILE_COLLECTIONS').split():
-        raise bb.parse.SkipRecipe('Requires meta-python to be present.')
-}

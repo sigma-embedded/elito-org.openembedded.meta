@@ -8,9 +8,6 @@ inherit xfce-panel-plugin
 
 DEPENDS += "libmpd"
 
-# While this item does not require it, it depends on mpd which does
-LICENSE_FLAGS = "commercial"
-
 # for now we recommend our own mpd-server
 RRECOMMENDS_${PN} = "mpd"
 

@@ -1,5 +1,4 @@
 DESCRIPTION = "netkit-telnet includes the telnet daemon and client."
-HOMEPAGE = "http://www.hcs.harvard.edu/~dholland/computers/netkit.html"
 SECTION = "net"
 DEPENDS = "ncurses"
 LICENSE = "BSD"

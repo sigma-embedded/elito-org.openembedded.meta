@@ -6,21 +6,18 @@ DESCRIPTION = "Parallelism library for C++ - runtime files \
 HOMEPAGE = "http://threadingbuildingblocks.org/"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
-PRDATE = "20170412"
-BRANCH = "tbb_2017"
-SRCREV = "a2cfdfe946933cbe38bffe1d8086ae36f06691a3"
-PV = "${PRDATE}+${SRCPV}"
-SRC_URI = "git://github.com/01org/tbb;branch=${BRANCH} \
+PRDATE = "20170118"
+PV = "${PRDATE}"
+SRC_URI = "https://www.threadingbuildingblocks.org/sites/default/files/software_releases/source/tbb2017_${PRDATE}oss_src.tgz \
            file://cross-compile.patch \
-           file://0001-mallinfo-is-glibc-specific-API-mark-it-so.patch \
-           file://tbb.pc \
-"
+           file://tbb.pc"
+SRC_URI[md5sum] = "26baa6fbcc8f03ee45c0641b91d9588a"
+SRC_URI[sha256sum] = "48bb526287fa8b4e7d1e1b2ba9e5fb9c3e372b497772c06ef9ccd7f93f344e74"
 
-S = "${WORKDIR}/git"
+S = "${WORKDIR}/tbb2017_${PRDATE}oss/"
 
 COMPILER ?= "gcc"
 COMPILER_toolchain-clang = "clang"
-
 do_compile() {
     oe_runmake compiler=${COMPILER} arch=${HOST_ARCH} runtime=cc4
 }
@@ -41,4 +38,3 @@ do_install() {
 # | make[1]: *** [concurrent_queue.o] Error 1
 ARM_INSTRUCTION_SET = "arm"
 SECURITY_CFLAGS_append = " -fPIC"
-

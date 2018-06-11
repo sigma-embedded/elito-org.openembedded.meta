@@ -10,7 +10,6 @@ PV = "3.14+git${SRCPV}"
 
 SRC_URI = "git://github.com/rvoicilas/${BPN} \
            file://inotifywait-fix-compile-error-with-GCC-6.patch \
-           file://inotify-nosys-fix-system-call-number.patch \
           "
 
 S = "${WORKDIR}/git"

@@ -31,8 +31,6 @@ do_install_append () {
 
     # support for buggy init.d scripts that refer to an alternative
     # explicit path to start-stop-daemon
-    if [ "${base_sbindir}" != "${sbindir}" ]; then
-        mkdir -p ${D}${base_sbindir}
-        ln -sf ${sbindir}/start-stop-daemon ${D}${base_sbindir}/start-stop-daemon
-    fi
+    mkdir -p ${D}/sbin/
+    ln -sf /usr/sbin/start-stop-daemon ${D}/sbin/start-stop-daemon
 }

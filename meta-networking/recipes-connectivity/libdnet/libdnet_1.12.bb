@@ -13,4 +13,3 @@ inherit autotools
 
 acpaths = "-I ./config/"
 
-BBCLASSEXTEND = "native"

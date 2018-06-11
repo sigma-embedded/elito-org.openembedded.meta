@@ -21,7 +21,6 @@ inherit cmake pkgconfig
 S = "${WORKDIR}/${BP}-Source"
 
 EXTRA_OECONF = " -DCMAKE_SKIP_RPATH=ON "
-EXTRA_OECMAKE += "-DBUILD_DOCUMENTATION=OFF"
 
 #--enable-apps --enable-syslog
 

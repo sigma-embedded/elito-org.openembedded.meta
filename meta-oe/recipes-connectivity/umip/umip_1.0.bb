@@ -9,13 +9,13 @@ LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=073dc31ccb2ebed70db54f1e8aeb4c33"
 DEPENDS = "rpm indent-native"
 
-SRC_URI = "git://github.com/jlanza/umip \
+SRC_URI = "git://git.umip.org/umip.git \
            file://add-dependency-to-support-parallel-compilation.patch \
            file://mip6d \
            file://mip6d.service \
            file://0001-Add-format-string-to-fprintf-call.patch \
            "
-SRCREV = "7d67209cd1bba2dd0e183a0fa07eeef07964dd14"
+SRCREV = "428974c2d0d8e75a2750a3ab0488708c5dfdd8e3"
 
 S = "${WORKDIR}/git"
 
